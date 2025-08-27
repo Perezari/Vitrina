@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מחולל פרט לדופן ויטרינה פינתית</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>📐 מחולל פרט לדופן ויטרינה פינתית</h1>
+  <p class="subtitle">הזן מידות וקבל שרטוט טכני באופן אוטומטי - מידות במ"מ.</p>
+  
+  <div class="wrap">
+    <div class="card">
+      <h2>הגדרת מידות 🚪</h2>
+      <div class="row">
+        <div>
+          <label for="frontW">רוחב חזית</label>
+          <input id="frontW" type="number" value="410" min="100">
+        </div>
+        <div>
+          <label for="cabH">גובה חזית</label>
+          <input id="cabH" type="number" value="2100" min="500">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="shelves">מספר מדפים</label>
+          <input id="shelves" type="number" value="5" min="1">
+        </div>
+        <div>
+          <label for="rEdge">קצה מחבר קבינאו</label>
+          <input id="rEdge" type="number" value="160" min="1">
+        </div>
+      </div>
+      <label for="rMidCount">כמות מחברי קבינאו דרושים</label>
+      <input id="rMidCount" type="number" value="3" min="1">
+
+      <!-- ✅ חדש: בחירת צד -->
+      <label for="sideSelect">כיוון פתיחת דלת ויטרינה</label>
+      <select id="sideSelect">
+        <option value="right" selected>שמאל</option>
+        <option value="left">ימין</option>
+      </select>
+      
+      <div class="buttons-container">
+        <button id="calcBtn">חשב ושרטט <span class="loading-spinner"></span></button>
+		<button id="downloadBtn" type="button" >הורד PDF 💾</button>
+      </div>
+
+      <div id="readout" class="readout-container" style="display:none;">
+        <h3>סיכום מידות 📏</h3>
+        <div id="readout-content"></div>
+      </div>
+    </div>
+    
+    <div class="card drawing-card">
+      <svg id="svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMin slice"></svg>
+      <div class="svg-overlay">השרטוט יופיע כאן...</div>
+    </div>
+  </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.5.0/dist/svg2pdf.umd.min.js"></script>
+<script src="Alef-normal.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
