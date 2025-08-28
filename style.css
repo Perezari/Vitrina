@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
 body {
-  font-family: 'Heebo', sans-serif;
+  font-family: 'Rubik', sans-serif;
   background: #f0f4f8;
   color: #2c3e50;
   margin: 0;
@@ -11,7 +11,7 @@ body {
 }
 
 body, svg, text {
-    font-family: 'Alef', sans-serif;
+    font-family: 'Rubik', sans-serif;
 }
 
 h1 {
@@ -74,9 +74,12 @@ label {
   gap: 8px;
 }
 
-input[type="number"], select {
+/* שדות מספריים, טקסט ושדות בחירה */
+input[type="number"],
+input[type="text"],
+select {
   width: 100%;
-  padding: 12px;
+  padding: 3px;
   border: 1px solid #dfe6e9;
   border-radius: 10px;
   box-sizing: border-box;
@@ -87,6 +90,7 @@ input[type="number"], select {
 }
 
 input[type="number"]:focus,
+input[type="text"]:focus,
 select:focus {
   outline: none;
   border-color: #3498db;
@@ -231,9 +235,13 @@ text {
 
 .note-text {
   font-size: 13px;
-  font-family: 'Heebo', sans-serif;
+  font-family: 'Rubik', sans-serif;
   fill: #2c3e50;
   font-weight: 600;
     /* יישור אופקי */
   text-anchor: middle;
+}
+
+.card h2:nth-of-type(2) {
+  margin-top: 32px;
 }
