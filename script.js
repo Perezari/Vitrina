@@ -472,19 +472,26 @@ async function downloadPdf() {
         addLogo(pdf);
 
         function validateRequiredFields(fields) {
+            let allValid = true;
             for (let id of fields) {
                 const input = document.getElementById(id);
-                if (input && input.value.trim() === '') {
-                    alert('אנא מלא את השדה: ' + input.previousElementSibling.textContent);
-                    input.style.border = '2px solid red';
-                    input.focus();
-                    return false;
+                if (input) {
+                    if (input.value.trim() === '') {
+                        alert('אנא מלא את השדה: ' + input.previousElementSibling.textContent);
+                        input.style.border = '2px solid red';
+                        input.focus();
+                        allValid = false;
+                        break; // עוצר בלחיצה הראשונה
+                    } else {
+                        // אם השדה לא ריק – מחזיר את העיצוב הרגיל
+                        input.style.border = '';
+                    }
                 }
             }
-            return true;
+            return allValid;
         }
 
-        const requiredFields = ['glassModel', 'partName'];
+        const requiredFields = ['Sapak', 'planNum', 'unitNum', 'partName', 'profileType', 'profileColor', 'glassModel', ];
         if (!validateRequiredFields(requiredFields)) return;
 
         // ====== שמירה ======
