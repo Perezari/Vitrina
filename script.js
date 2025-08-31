@@ -342,6 +342,7 @@ async function downloadPdf() {
 
         // קריאת נתוני היחידה
         const unitDetails = {
+            sideSelect: document.getElementById('sideSelect').value,
             Sapak: document.getElementById('Sapak').value,
             planNum: document.getElementById('planNum').value,
             unitNum: document.getElementById('unitNum').value,
@@ -497,7 +498,7 @@ async function downloadPdf() {
         // ====== שמירה ======
         function savePdf() {
             try {
-                pdf.save('שרטוט.pdf');
+				pdf.save(unitDetails.planNum + '_' + unitDetails.unitNum + '_' + unitDetails.profileType + '_' + unitDetails.sideSelect + '.pdf');
             } catch (_) {
                 const blobUrl = pdf.output('bloburl');
                 const a = document.createElement('a');
