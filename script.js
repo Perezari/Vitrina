@@ -595,7 +595,7 @@ function draw() {
     const drillOffsetSide = 5;   // הזזה אופקית ל-50 מכל צד
 
     // --- קידוחים לאורך השרשרת הימנית (או שמאל לפי sideSelect) ---
-    let yDrill = padY + rEdge * scale / 2 + 10;
+    let yDrill = padY + rEdge * scale;
     let xRightDrill = padX + W - drillOffsetRight + 8;
     if (sideSelect === "left") {
         xRightDrill = padX + drillOffsetRight - 8; // שרשרת שמאל
