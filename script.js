@@ -661,7 +661,16 @@ function draw() {
     // נקודות גובה כולל
     addDimDot(svg, xTotal - 10, padY);
     addDimDot(svg, xTotal - 10, padY + H);
-    svg.insertAdjacentHTML('beforeend', `<text x="${xTotal - 20}" y="${padY + H / 2}" transform="rotate(-90,${xTotal - 20},${padY + H / 2})">${cabH}</text>`);
+    svg.insertAdjacentHTML('beforeend', `
+  <text 
+    x="${xTotal - 20}" 
+    y="${padY + H / 2}" 
+    transform="rotate(-90,${xTotal - 20},${padY + H / 2})" 
+    text-anchor="middle" 
+    dominant-baseline="middle">
+    ${cabH}
+  </text>
+`);
 
     // שרשראות ומדידות (ימין/שמאל)
     let xRightDim, xLeftDim;
