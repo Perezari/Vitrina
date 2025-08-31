@@ -757,9 +757,6 @@ function draw() {
         readoutContent.innerHTML = `
       <div class="readout-item">גובה חזית: <strong>${cabH} מ״מ</strong></div>
       <div class="readout-item">רוחב חזית: <strong>${frontW} מ״מ</strong></div>
-      <div class="readout-item">קבינאו חלוקת רוחב: <strong>${sideM} - ${innerW} - ${sideM} מ״מ</strong></div>
-      <div class="readout-item">גובה חללי ימין: <strong>${rEdge} / ${rMidStep.toFixed(0)} / ${rEdge} מ״מ</strong></div>
-      <div class="readout-item">גובה חללי שמאל: <strong>${lTop.toFixed(0)} / ${lStep.toFixed(0)} / ${lBot.toFixed(0)} מ״מ</strong></div>
     `;
         const readout = document.getElementById('readout');
         if (readout) readout.style.display = 'block';
