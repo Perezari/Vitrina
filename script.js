@@ -563,6 +563,14 @@ function draw() {
     const overlay = document.querySelector('.svg-overlay');
     overlay && (overlay.style.display = 'none');
 
+    svg.innerHTML = `
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <circle cx="5" cy="5" r="4" fill="#54a5f5"/>
+    </marker>
+  </defs>
+  `;
+  
     const paddingInner = 4;
     const innerX = padX + paddingInner;
     const innerY = padY + paddingInner;
