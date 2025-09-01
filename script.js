@@ -421,9 +421,13 @@ async function downloadPdf() {
             pdf.setLineWidth(0.3);
             pdf.roundedRect(textX - width, textY, width, height, 3, 3, 'FD');
 
-            const dontFix = ['מספר תוכנית', 'גוון פרופיל', 'סוג זכוכית'];
-            const fixedValue = dontFix.includes(label) ? value : fixHebrew(value);
-
+            const fixedValue = (label === 'מספר יחידה' 
+                 || label === 'גוון פרופיל' 
+                 || label === 'מספר תוכנית'
+                 || label === 'סוג זכוכית')
+    ? value 
+    : fixHebrew(value);
+    
             pdf.text(fixedValue, textX - width / 2, textY + height / 2, { align: 'center', baseline: 'middle' });
 
             const fixedLabel = fixHebrew(label);
