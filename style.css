@@ -39,7 +39,7 @@ p.subtitle {
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-  border: 1px solid #e0e6ed;
+  border: 1px dashed #d1e2f0;
 }
 
 .card.drawing-card {
