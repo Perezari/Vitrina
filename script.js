@@ -575,7 +575,8 @@ function draw() {
   </defs>
   `;
   
-const profileType = document.getElementById('profileType').value;
+const profileType = document.getElementById('profileType').selectedOptions[0].text;
+
 // ברירת מחדל
 let GERONG = true; 
 
@@ -606,7 +607,12 @@ switch(profileType) {
         PAD_SIDES = 45;
         PAD_TOPBOT = 19;
 		GERONG = false;
-        break;
+		break;
+	case "ג'נסיס":
+		PAD_SIDES = 0;
+		PAD_TOPBOT = 0;
+		GERONG = true;
+		break;
     case "424":
         innerFrameStrokeWidth = 0.5;
         PAD_SIDES = 42;
@@ -853,6 +859,38 @@ if (downloadBtn) {
         }
     });
 }
+
+// Map של ספקים לפרופילים
+const profilesMap = {
+  bluran: ["קואדרו", "זירו"],
+  nilsen: ["424",]
+};
+
+const sapakSelect = document.getElementById("Sapak");
+const profileSelect = document.getElementById("profileType");
+
+// פונקציה למילוי profileType
+function fillProfileOptions() {
+    const selectedSapak = sapakSelect.value;
+    const options = profilesMap[selectedSapak] || [];
+
+    // מחיקה של כל האפשרויות הישנות
+    profileSelect.innerHTML = "";
+
+    // הוספת אפשרויות חדשות
+    options.forEach(profile => {
+        const optionEl = document.createElement("option");
+        optionEl.value = profile;
+        optionEl.textContent = profile;
+        profileSelect.appendChild(optionEl);
+    });
+}
+
+// מילוי בפעם הראשונה לפי הספק שנבחר כבר
+fillProfileOptions();
+
+// מאזין לשינוי בספק
+sapakSelect.addEventListener("change", fillProfileOptions);
 
 // הפעלה ראשונית
 draw();
