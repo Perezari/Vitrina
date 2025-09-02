@@ -575,16 +575,58 @@ function draw() {
   </defs>
   `;
   
-    const paddingInner = 4;
-    const innerX = padX + paddingInner;
-    const innerY = padY + paddingInner;
-    const innerWW = W - 2 * paddingInner;
-    const innerH = H - 2 * paddingInner;
+const profileType = document.getElementById('profileType').value;
+// ברירת מחדל
+let GERONG = true; 
 
-    // מסגרות
-    svg.insertAdjacentHTML('beforeend', `<rect x="${padX}" y="${padY}" width="${W}" height="${H}" fill="none" stroke="#2c3e50" stroke-width="0.5"/>`);
-    svg.insertAdjacentHTML('beforeend', `<rect x="${innerX}" y="${innerY}" width="${innerWW}" height="${innerH}" fill="none" stroke="#2c3e50" stroke-width="0.5"/>`);
+// מסגרת חיצונית
+let frameStroke = "#2c3e50"; 
+let frameStrokeWidth = 0.5;
+let frameFill = "none";
 
+// מסגרת פנימית
+let innerFrameStroke = "#2c3e50";
+let innerFrameStrokeWidth = 0.5;
+let innerFrameFill = "none";
+
+// ברירות מחדל לפדינגים
+let PAD_SIDES = 19;
+let PAD_TOPBOT = 19;
+
+// התאמות לפי profileType
+switch(profileType) {
+    case "קואדרו":
+        innerFrameStrokeWidth = 0.5;
+        PAD_SIDES = 19;
+        PAD_TOPBOT = 19;
+		GERONG = true;
+        break;
+    case "זירו":
+        innerFrameStrokeWidth = 0.5;
+        PAD_SIDES = 45;
+        PAD_TOPBOT = 19;
+		GERONG = false;
+        break;
+    case "424":
+        innerFrameStrokeWidth = 0.5;
+        PAD_SIDES = 42;
+        PAD_TOPBOT = 42;
+		GERONG = true;
+        break;
+}
+
+// חישוב מיקום וגודל פנימי
+const innerX = padX + PAD_SIDES * scale;
+const innerY = padY + PAD_TOPBOT * scale;
+const innerWW = W - 2 * PAD_SIDES * scale;
+const innerH = H - 2 * PAD_TOPBOT * scale;
+
+// מסגרות
+svg.insertAdjacentHTML('beforeend', `<rect x="${padX}" y="${padY}" width="${W}" height="${H}" fill="${frameFill}" stroke="${frameStroke}" stroke-width="${frameStrokeWidth}"/>`);
+svg.insertAdjacentHTML('beforeend', `<rect x="${innerX}" y="${innerY}" width="${innerWW}" height="${innerH}" fill="${innerFrameFill}" stroke="${innerFrameStroke}" stroke-width="${innerFrameStrokeWidth}"/>`);
+
+// קווים בין מסגרות – לפי GERONG
+if (GERONG) {
     // קווים אלכסוניים
     svg.insertAdjacentHTML('beforeend', `
     <line x1="${padX}" y1="${padY}" x2="${innerX}" y2="${innerY}" stroke="#2c3e50" stroke-width="0.5"/>
@@ -592,11 +634,25 @@ function draw() {
     <line x1="${padX}" y1="${padY + H}" x2="${innerX}" y2="${innerY + innerH}" stroke="#2c3e50" stroke-width="0.5"/>
     <line x1="${padX + W}" y1="${padY + H}" x2="${innerX + innerWW}" y2="${innerY + innerH}" stroke="#2c3e50" stroke-width="0.5"/>
   `);
+}
+else {
+    // מסגרת פנימית מלאה לפי PAD_SIDES ו-PAD_TOPBOT
+    // קווים עליון ותחתון
+    svg.insertAdjacentHTML('beforeend', `
+        <!-- קו עליון -->
+        <line x1="${innerX - PAD_SIDES * scale}" y1="${innerY}" x2="${innerX + innerWW + PAD_SIDES * scale}" y2="${innerY}" stroke="#2c3e50" stroke-width="0.5"/>
+        <!-- קו תחתון -->
+        <line x1="${innerX- PAD_SIDES * scale}" y1="${innerY + innerH}" x2="${innerX + innerWW + PAD_SIDES * scale}" y2="${innerY + innerH}" stroke="#2c3e50" stroke-width="0.5"/>
+        <!-- קו צד שמאל -->
+        <line x1="${innerX}" y1="${innerY}" x2="${innerX}" y2="${innerY + innerH}" stroke="#2c3e50" stroke-width="0.5"/>
+        <!-- קו צד ימין -->
+        <line x1="${innerX + innerWW}" y1="${innerY}" x2="${innerX + innerWW}" y2="${innerY + innerH}" stroke="#2c3e50" stroke-width="0.5"/>
+    `);
+}
 
     // ✅ קידוחים עגולים בדלת
-    const drillR = 1;
-    const drillOffsetRight = 10; // הזזה אופקית לשרשרת ימין
-    const drillOffsetSide = 5;   // הזזה אופקית ל-50 מכל צד
+    const drillR = 0.5;
+    const drillOffsetRight = 9.5; // הזזה אופקית לשרשרת ימין
 
     // --- קידוחים לאורך השרשרת הימנית (או שמאל לפי sideSelect) ---
     let yDrill = padY + rEdge * scale;
@@ -612,8 +668,8 @@ function draw() {
     yDrill += rEdge * scale / 2;
 
     // --- קידוחים עבור ה-50 מכל צד (תחתון) ---
-    const drillMarginBottom = 4;
-    const yBottom50 = padY + H - drillMarginBottom - drillR + 3;
+    const drillMarginBottom = 1;
+    const yBottom50 = padY + H - drillMarginBottom - drillR;
     const xLeftDrill = padX + sideM * scale / 2 + 5;
     const xRightSideDrill = padX + W - sideM * scale / 2 - 5;
     svg.insertAdjacentHTML('beforeend', `<circle cx="${xLeftDrill}" cy="${yBottom50}" r="${drillR}" fill="none" stroke="#2c3e50" stroke-width="1"/>`);
