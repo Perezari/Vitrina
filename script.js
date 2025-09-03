@@ -862,7 +862,7 @@ if (downloadBtn) {
 
 // Map של ספקים לפרופילים
 const profilesMap = {
-  bluran: ["קואדרו", "זירו"],
+  bluran: ["קואדרו",],
   nilsen: ["424",]
 };
 
