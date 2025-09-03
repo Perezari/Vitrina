@@ -1,126 +1,126 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>מחולל פרט לדופן ויטרינה פינתית</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחולל פרט לדופן ויטרינה פינתית</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>📐 מחולל פרט לדופן ויטרינה פינתית</h1>
-  <p class="subtitle">הזן מידות וקבל שרטוט טכני באופן אוטומטי - מידות במ"מ.</p>
-  
-  <div class="wrap">
-    <div class="card">
-      <h2>הגדרת מידות 🚪</h2>
-      <div class="row">
-        <div>
-          <label for="frontW">רוחב חזית</label>
-          <input id="frontW" type="number" value="400" min="100">
-        </div>
-        <div>
-          <label for="cabH">גובה חזית</label>
-          <input id="cabH" type="number" value="1920" min="500">
-        </div>
-      </div>
-      <div class="row">
-        <div>
-          <label for="shelves">מספר מדפים</label>
-          <input id="shelves" type="number" value="4" min="1">
-        </div>
-        <div>
-          <label for="rEdge">קצה מחבר קבינאו</label>
-          <input id="rEdge" type="number" value="160" min="1">
-        </div>
-      </div>    
-	  <div class="row">
-        <div>
-      <label for="rMidCount">כמות קבינאו</label>
-      <input id="rMidCount" type="number" value="5" min="1">
-        </div>
-        <div>
-      <label for="sideSelect">כיוון פתיחת דלת ויטרינה</label>
-      <select id="sideSelect">
-        <option value="right" selected>שמאל</option>
-        <option value="left">ימין</option>
-      </select>
-        </div>
-      </div>
-	  
-	  <h2>פרטי יחידה 📝</h2>
-    <div>
-    <label for="Sapak">הזמנה עבור</label>
-    <select id="Sapak">
-      <option value="bluran">בלורן</option>
-      <option value="nilsen">נילסן</option>
-    </select>
-  </div>
-	
-<div class="row">
-  <div>
-    <label for="planNum">מספר תוכנית</label>
-    <input id="planNum" type="text" placeholder="מספר תוכנית">
-  </div>
-  <div>
-    <label for="unitNum">מספר יחידה</label>
-    <input id="unitNum" type="text" placeholder="מספר יחידה">
-  </div>
-</div>
-<div class="row">
-  <div>
-    <label for="partName">שם מפרק</label>
-    <input id="partName" type="text" placeholder="פרץ ארי">
-  </div>
-  <div>
-    <label for="profileType">סוג פרופיל</label>
-    <select id="profileType">
-    </select>
-  </div>
-</div>
-<div class="row">
-  <div>
-    <label for="profileColor">גוון פרופיל</label>
-    <input id="profileColor" type="text" placeholder="לדוגמה: G05">
-  </div>
-  <div>
-    <label for="glassModel">דגם זכוכית</label>
-    <input id="glassModel" type="text" placeholder="לדוגמה: BL-103">
-  </div>
-</div>
-<div class="row">
-  <div>
-    <label for="glassTexture">כיוון טקסטורת זכוכית</label>
-    <select id="glassTexture">
-      <option value="none">ללא</option>
-      <option value="vertical">לגובה</option>
-      <option value="horizontal">לרוחב</option>
-    </select>
-  </div>
-  <div>
-    <label for="prepFor">כולל הכנה עבור</label>
-    <input id="prepFor" type="text" value="קבינאו ונושאי מדף">
-  </div>
-</div>
-      
-      <div class="buttons-container">
-        <button id="calcBtn">חשב ושרטט <span class="loading-spinner"></span></button>
-		<button id="downloadBtn" type="button" >הורד PDF 💾</button>
-      </div>
+    <h1>📐 מחולל פרט לדופן ויטרינה פינתית</h1>
+    <p class="subtitle">הזן מידות וקבל שרטוט טכני באופן אוטומטי - מידות במ"מ.</p>
 
-      <div id="readout" class="readout-container" style="display:none;">
-        <h3>סיכום מידות 📏</h3>
-        <div id="readout-content"></div>
-      </div>
+    <div class="wrap">
+        <div class="card">
+            <h2>הגדרת מידות 📐</h2>
+            <div class="row">
+                <div>
+                    <label for="frontW">רוחב חזית</label>
+                    <input id="frontW" type="number" value="400" min="100">
+                </div>
+                <div>
+                    <label for="cabH">גובה חזית</label>
+                    <input id="cabH" type="number" value="1920" min="500">
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label for="shelves">מספר מדפים</label>
+                    <input id="shelves" type="number" value="4" min="1">
+                </div>
+                <div>
+                    <label for="rEdge">קצה מחבר קבינאו</label>
+                    <input id="rEdge" type="number" value="160" min="1">
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label for="rMidCount">כמות קבינאו</label>
+                    <input id="rMidCount" type="number" value="5" min="1">
+                </div>
+                <div>
+                    <label for="sideSelect">כיוון פתיחת דלת ויטרינה</label>
+                    <select id="sideSelect">
+                        <option value="right" selected>שמאל</option>
+                        <option value="left">ימין</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2>פרטי יחידה 📝</h2>
+            <div>
+                <label for="Sapak">הזמנה עבור</label>
+                <select id="Sapak">
+                    <option value="bluran">בלורן</option>
+                    <option value="nilsen">נילסן</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label for="planNum">מספר תוכנית</label>
+                    <input id="planNum" type="text" placeholder="מספר תוכנית">
+                </div>
+                <div>
+                    <label for="unitNum">מספר יחידה</label>
+                    <input id="unitNum" type="text" placeholder="מספר יחידה">
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label for="partName">שם מפרק</label>
+                    <input id="partName" type="text" placeholder="פרץ ארי">
+                </div>
+                <div>
+                    <label for="profileType">סוג פרופיל</label>
+                    <select id="profileType">
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label for="profileColor">גוון פרופיל</label>
+                    <input id="profileColor" type="text" placeholder="לדוגמה: G05">
+                </div>
+                <div>
+                    <label for="glassModel">דגם זכוכית</label>
+                    <input id="glassModel" type="text" placeholder="לדוגמה: BL-103">
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label for="glassTexture">כיוון טקסטורת זכוכית</label>
+                    <select id="glassTexture">
+                        <option value="none">ללא</option>
+                        <option value="vertical">לגובה</option>
+                        <option value="horizontal">לרוחב</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="prepFor">כולל הכנה עבור</label>
+                    <input id="prepFor" type="text" value="קבינאו ונושאי מדף">
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <button id="downloadBtn" type="button">הורד PDF 💾</button>
+            </div>
+
+            <div id="readout" class="readout-container" style="display:none;">
+                <h3>סיכום מידות 📏</h3>
+                <div id="readout-content"></div>
+            </div>
+        </div>
+
+        <div class="card drawing-card">
+            <svg id="svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMin slice"></svg>
+            <div class="svg-overlay">השרטוט יופיע כאן...</div>
+        </div>
     </div>
-    
-    <div class="card drawing-card">
-      <svg id="svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMin slice"></svg>
-      <div class="svg-overlay">השרטוט יופיע כאן...</div>
-    </div>
-  </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.5.0/dist/svg2pdf.umd.min.js"></script>
-<script src="Alef-normal.js"></script>
-<script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.5.0/dist/svg2pdf.umd.min.js"></script>
+    <script src="Alef-normal.js"></script>
+    <script src="profiles.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
