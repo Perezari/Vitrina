@@ -28,48 +28,11 @@ window.ProfileConfig = (function () {
             padTopBot: 19, //כמה מסגרת נכנסת מלמעלה ומלמטה
             hasGerong: true, //האם חיבור מסגרת בגרונג
             frontDrillOffset: 8, //כמה הקידוח נכנס מקו חזית
-            defaultPrepFor: "צירים", //הכנה עבור
-            description: "פרופיל קואדרו עם גרונג", //תיאור
+            defaultPrepFor: "קבינאו ונושאי מדף", // הכנה עבור
+            description: "דופן קואדרו", //תיאור
             rightNotes: "הכנה למחברי קבינאו", //תיאור
-            LeftNotes: "מידות עבור נושאי מדף עד מרכז קידוח, קוטר קידוח: 2.5 מ\"מ", //תיאור
-        },
-        "זירו": {
-            // מסגרת פנימית
-            innerFrameStroke: "#2c3e50",
-            innerFrameStrokeWidth: 0.5,
-            innerFrameFill: "none",
-            // מסגרת חיצונית
-            outerFrameStroke: "#2c3e50",
-            outerFrameStrokeWidth: 0.5,
-            outerFrameFill: "none",
-            padSides: 45, //כמה מסגרת נכנסת מהצד
-            padTopBot: 19, //כמה מסגרת נכנסת מלמעלה ומלמטה
-            hasGerong: false, //האם חיבור מסגרת בגרונג
-            frontDrillOffset: 8, //כמה הקידוח נכנס מקו חזית
-            defaultPrepFor: "צירים", //הכנה עבור
-            description: "פרופיל זירו ללא גרונג", //תיאור
-            rightNotes: "הכנה למחברי קבינאו", //תיאור
-            LeftNotes: "מידות עבור נושאי מדף עד מרכז קידוח, קוטר קידוח: 2.5 מ\"מ", //תיאור
-        },
-        "ג'נסיס": {
-            // מסגרת פנימית
-            innerFrameStroke: "#2c3e50",
-            innerFrameStrokeWidth: 0.5,
-            innerFrameFill: "none",
-            // מסגרת חיצונית
-            outerFrameStroke: "#2c3e50",
-            outerFrameStrokeWidth: 0.5,
-            outerFrameFill: "none",
-            padSides: 0, //כמה מסגרת נכנסת מהצד
-            padTopBot: 0, //כמה מסגרת נכנסת מלמעלה ומלמטה
-            hasGerong: true, //האם חיבור מסגרת בגרונג
-            frontDrillOffset: 42.5, //כמה הקידוח נכנס מקו חזית
-            extraDrillOffset: 32, //מרחק בין קידוח לקידוח
-            hasDualDrill: true, //האם לתת קידוח כפול
-            defaultPrepFor: "צירים לדלת דקה", //הכנה עבור
-            description: "קידוח לצירים בקוטר 2.5 מ\"מ", //תיאור
-            rightNotes: "הכנה למחברי קבינאו", //תיאור
-            LeftNotes: "מידות עבור נושאי מדף עד מרכז קידוח, קוטר קידוח: 2.5 מ\"מ", //תיאור
+            LeftNotes: "מידות לנושאי מדף עד מרכז קידוח בקוטר 2.5 מ\"מ", //תיאור
+			CenterNotes: "", //תיאור
         },
         "424": {
             // מסגרת פנימית
@@ -84,10 +47,11 @@ window.ProfileConfig = (function () {
             padTopBot: 42, //כמה מסגרת נכנסת מלמעלה ומלמטה
             hasGerong: true, //האם חיבור מסגרת בגרונג
             frontDrillOffset: 8, //כמה הקידוח נכנס מקו חזית
-            defaultPrepFor: "צירים", //הכנה עבור
-            description: "פרופיל 424 עם גרונג", //תיאור
-            rightNotes: "הכנה למחברי קבינאו", //תיאור
-            LeftNotes: "מידות עבור נושאי מדף עד מרכז קידוח, קוטר קידוח: 2.5 מ\"מ", //תיאור
+            defaultPrepFor: "קבינאו ונושאי מדף", // הכנה עבור
+            description: "דופן 424", //תיאור
+            rightNotes: "קידוחים לקבינאו 5 מ\"מ מקצה הדלת בקוטר 5 מ\"מ", //תיאור
+            LeftNotes: "מידות לנושאי מדף עד מרכז קידוח בקוטר 2.5 מ\"מ", //תיאור
+			CenterNotes: "קידוחים לקבינאו 5 מ\"מ מקצה הדלת בקוטר 5 מ\"מ", // תיאור
         }
     };
 
