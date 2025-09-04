@@ -898,7 +898,7 @@ CabineoLocation.addEventListener("change", fillProfileOptions);
 CabineoCount.addEventListener("change", fillProfileOptions);
 
 // טעינת קובץ Excel
-excelFile.addEventListener("change", function(e) {
+excelFile.addEventListener("change", function (e) {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -909,7 +909,7 @@ excelFile.addEventListener("change", function(e) {
     }
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
 
@@ -926,22 +926,22 @@ excelFile.addEventListener("change", function(e) {
             const select = document.createElement("select");
             select.id = "unitNum";
 
-// מספרי היחידות מהקובץ, מסוננים
-const units = [...new Set(
-    excelRows
-        .map(r => String(r['יחידה']).trim())
-        .filter(u => u && u !== "undefined")
-)];
+            // מספרי היחידות מהקובץ, מסוננים
+            const units = [...new Set(
+                excelRows
+                    .map(r => String(r['יחידה']).trim())
+                    .filter(u => u && u !== "undefined")
+            )];
 
-units.forEach((unit, index) => {
-    const option = document.createElement("option");
-    option.value = unit;
-    option.textContent = unit;
-    select.appendChild(option);
+            units.forEach((unit, index) => {
+                const option = document.createElement("option");
+                option.value = unit;
+                option.textContent = unit;
+                select.appendChild(option);
 
-    // בחר אוטומטית את הערך הראשון
-    if (index === 0) select.value = unit;
-});
+                // בחר אוטומטית את הערך הראשון
+                if (index === 0) select.value = unit;
+            });
 
             // מחליפים את השדה ב-DOM
             unitContainer.replaceChild(select, unitNumInput);
@@ -949,7 +949,7 @@ units.forEach((unit, index) => {
         }
 
         // מאזינים לשינוי ברשימה
-        unitNumInput.addEventListener("change", function() {
+        unitNumInput.addEventListener("change", function () {
             searchUnit(this.value);
         });
 
@@ -1012,7 +1012,7 @@ function searchUnit(unitNum) {
 }
 
 // חיפוש בלייב כשכותבים בשדה יחידה
-unitNumInput.addEventListener("input", function() {
+unitNumInput.addEventListener("input", function () {
     searchUnit(this.value);
 });
 
@@ -1034,7 +1034,7 @@ function hideOverlayPending() {
     }, 3000); // 3 שניות לפני הסתרה
 }
 
-batchSaveBtn.addEventListener("click", async function() {
+batchSaveBtn.addEventListener("click", async function () {
     if (!excelRows.length) return alert("אין קובץ Excel טעון!");
 
     showOverlay(); // מציג חלון המתנה
@@ -1053,8 +1053,8 @@ batchSaveBtn.addEventListener("click", async function() {
         cabH.value = row['אורך'] || '';
         document.getElementById('partName').value = partName;
 
-        const doorSide = partName.includes('ימין') ? 'right' : 
-                         partName.includes('שמאל') ? 'left' : '';
+        const doorSide = partName.includes('ימין') ? 'right' :
+            partName.includes('שמאל') ? 'left' : '';
         sideSelect.value = doorSide;
 
         let profileType = '';
@@ -1097,7 +1097,7 @@ function generatePDFForUnit(unitNumber) {
     // הפונקציה שלך שמייצרת PDF על פי הערכים הנוכחיים בשדות
     draw(); // אם צריך לעדכן את השרטוט לפני ההורדה
     // כאן הקוד ליצירת PDF והורדתו
-	downloadPdf();
+    downloadPdf();
 }
 
 const excelFileInput = document.getElementById('excelFile');

@@ -134,7 +134,7 @@ button {
         }
 
     button#downloadBtn {
-        background: #2ecc71;
+        background: #27ae60;
         color: #fff;
     }
 
@@ -143,17 +143,17 @@ button {
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0,0,0,0.15);
         }
-		
-		        button#batchSaveBtn:hover {
-            background: #27ae60;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-        }
-		
-		    button#batchSaveBtn {
-        background: #2ecc71;
+
+    button#batchSaveBtn:hover {
+        background: #27ae60;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+
+    button#batchSaveBtn {
+        background: #27ae60;
         color: #fff;
-			}
+    }
 
 .readout-container {
     margin-top: 24px;
@@ -280,11 +280,11 @@ text {
     transition: all 0.2s ease;
 }
 
-.file-upload .file-label:hover {
-    background: #2980b9;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-}
+    .file-upload .file-label:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
 
 /* שם הקובץ שנבחר */
 .file-upload .file-name {
