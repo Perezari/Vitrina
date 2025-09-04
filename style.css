@@ -65,7 +65,7 @@ p.subtitle {
 
 label {
     display: block;
-    margin-top: 16px;
+    margin-top: 12px;
     font-size: 14px;
     font-weight: 500;
     color: #555;
@@ -143,6 +143,17 @@ button {
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0,0,0,0.15);
         }
+		
+		        button#batchSaveBtn:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+		
+		    button#batchSaveBtn {
+        background: #2ecc71;
+        color: #fff;
+			}
 
 .readout-container {
     margin-top: 24px;
@@ -251,4 +262,40 @@ text {
 
 .card h2:nth-of-type(2) {
     margin-top: 16px;
+}
+
+/* מסתירים את input[type="file"] המקורי */
+.file-upload input[type="file"] {
+    display: none;
+}
+/* כפתור מותאם אישית */
+.file-upload .file-label {
+    display: inline-block;
+    background: #3498db;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 200;
+    transition: all 0.2s ease;
+}
+
+.file-upload .file-label:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* שם הקובץ שנבחר */
+.file-upload .file-name {
+    margin-left: 12px;
+    font-size: 12px;
+    color: #2c3e50;
+}
+
+/* RTL התאמה */
+.file-upload {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }

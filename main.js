@@ -862,6 +862,10 @@ const cabH = document.getElementById("cabH");
 const shelves = document.getElementById("shelves");
 const CabineoLocation = document.getElementById("rEdge");
 const CabineoCount = document.getElementById("rMidCount");
+const unitContainer = document.getElementById("unitNum").parentElement;
+
+let unitNumInput = document.getElementById("unitNum"); // משתנה שמצביע כרגע ל-input
+let excelRows = []; // נשמור כאן את הנתונים מהקובץ
 
 function fillProfileOptions() {
     const selectedSapak = sapakSelect.value;
@@ -892,6 +896,220 @@ cabH.addEventListener("change", fillProfileOptions);
 shelves.addEventListener("change", fillProfileOptions);
 CabineoLocation.addEventListener("change", fillProfileOptions);
 CabineoCount.addEventListener("change", fillProfileOptions);
+
+// טעינת קובץ Excel
+excelFile.addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // חילוץ מספר תוכנית מהשם
+    const match = file.name.match(/^([A-Za-z0-9]+)_/);
+    if (match) {
+        document.getElementById('planNum').value = match[1];
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+        // range: 6 => להתחיל מהשורה 7 (B7) שבה יש כותרות
+        excelRows = XLSX.utils.sheet_to_json(sheet, { range: 6 });
+
+        console.log("עמודות שהתקבלו:", Object.keys(excelRows[0]));
+        console.log("דוגמה לשורה ראשונה:", excelRows[0]);
+
+        // הפיכת השדה unitNum לרשימה נפתחת אם הוא עדיין input
+        if (unitNumInput.tagName.toLowerCase() === "input") {
+            const select = document.createElement("select");
+            select.id = "unitNum";
+
+// מספרי היחידות מהקובץ, מסוננים
+const units = [...new Set(
+    excelRows
+        .map(r => String(r['יחידה']).trim())
+        .filter(u => u && u !== "undefined")
+)];
+
+units.forEach((unit, index) => {
+    const option = document.createElement("option");
+    option.value = unit;
+    option.textContent = unit;
+    select.appendChild(option);
+
+    // בחר אוטומטית את הערך הראשון
+    if (index === 0) select.value = unit;
+});
+
+            // מחליפים את השדה ב-DOM
+            unitContainer.replaceChild(select, unitNumInput);
+            unitNumInput = select;
+        }
+
+        // מאזינים לשינוי ברשימה
+        unitNumInput.addEventListener("change", function() {
+            searchUnit(this.value);
+        });
+
+        // ניסיון ראשוני אם כבר יש מספר יחידה בשדה
+        searchUnit(unitNumInput.value);
+    };
+    reader.readAsArrayBuffer(file);
+});
+
+// חיפוש שורה לפי מספר יחידה
+function searchUnit(unitNum) {
+    if (!excelRows.length || !unitNum) return;
+
+    const row = excelRows.find(r => {
+        const val = r['יחידה'];
+        if (val === undefined) return false;
+        return String(val).trim() === String(unitNum).trim();
+    });
+
+    if (!row) return;
+
+    frontW.value = row['רוחב'] || '';
+    cabH.value = row['אורך'] || '';
+
+    // קביעת כיוון דלת לפי שם החלק
+    if (row['שם החלק']) {
+        const partName = row['שם החלק'].toLowerCase();
+        if (partName.includes('ימין')) sideSelect.value = 'left';
+        else if (partName.includes('שמאל')) sideSelect.value = 'right';
+    }
+
+    // סוג חומר -> גוון + סוג פרופיל
+    if (row['סוג החומר']) {
+        const [color, type] = row['סוג החומר'].split('_');
+        document.getElementById('profileColor').value = color || '';
+
+        // חיפוש ספק לפי סוג הפרופיל
+        let foundSupplier = null;
+        for (const supplier in ProfileConfig.SUPPLIERS_PROFILES_MAP) {
+            if (ProfileConfig.SUPPLIERS_PROFILES_MAP[supplier].includes(type)) {
+                foundSupplier = supplier;
+                break;
+            }
+        }
+
+        if (foundSupplier) {
+            // עדכון הספק בשדה עם שם בעברית
+            sapakSelect.value = foundSupplier;
+            fillProfileOptions(); // עדכון הרשימה בהתאם לספק
+        }
+
+        profileSelect.value = type || '';
+    }
+
+    if (row['מלואה']) {
+        document.getElementById('glassModel').value = row['מלואה'];
+    }
+
+    draw();
+}
+
+// חיפוש בלייב כשכותבים בשדה יחידה
+unitNumInput.addEventListener("input", function() {
+    searchUnit(this.value);
+});
+
+const batchSaveBtn = document.getElementById("batchSaveBtn");
+
+function showOverlay() {
+    const overlay = document.getElementById('overlay');
+    overlay.style.display = 'flex';
+    document.getElementById('overlayText').textContent = "שומר קבצים...";
+    document.getElementById('overlayAnimation').textContent = "⏳";
+}
+
+function hideOverlayPending() {
+    const overlay = document.getElementById('overlay');
+    document.getElementById('overlayText').textContent = "קבצים נשלחו להורדה. אנא אשרו הורדות בדפדפן.";
+    document.getElementById('overlayAnimation').textContent = "⬇️";
+    setTimeout(() => {
+        overlay.style.display = 'none';
+    }, 3000); // 3 שניות לפני הסתרה
+}
+
+batchSaveBtn.addEventListener("click", async function() {
+    if (!excelRows.length) return alert("אין קובץ Excel טעון!");
+
+    showOverlay(); // מציג חלון המתנה
+
+    // יצירת PDF לכל יחידה עם small delay כדי לייבא ערכים ל-DOM
+    for (const row of excelRows) {
+        if (!row['יחידה']) continue;
+
+        const unitNumber = row['יחידה'];
+        const partName = row['שם החלק'] || '';
+        const material = row['סוג החומר'] || '';
+        const glass = row['מלואה'] || '';
+
+        // עדכון שדות כמו קודם
+        frontW.value = row['רוחב'] || '';
+        cabH.value = row['אורך'] || '';
+        document.getElementById('partName').value = partName;
+
+        const doorSide = partName.includes('ימין') ? 'right' : 
+                         partName.includes('שמאל') ? 'left' : '';
+        sideSelect.value = doorSide;
+
+        let profileType = '';
+        let profileColor = '';
+        if (material.includes('_')) [profileColor, profileType] = material.split('_');
+        document.getElementById('profileColor').value = profileColor;
+
+        let foundSupplier = null;
+        for (const supplier in ProfileConfig.SUPPLIERS_PROFILES_MAP) {
+            if (ProfileConfig.SUPPLIERS_PROFILES_MAP[supplier].includes(profileType)) {
+                foundSupplier = supplier;
+                break;
+            }
+        }
+        if (foundSupplier) {
+            sapakSelect.value = foundSupplier;
+            fillProfileOptions();
+        }
+
+        profileSelect.value = profileType;
+        document.getElementById('glassModel').value = glass;
+
+        // עדכון שדה היחידה
+        if (unitNumInput.tagName === 'SELECT') unitNumInput.value = unitNumber;
+        else unitNumInput.value = unitNumber;
+
+        const planNumber = document.getElementById('planNum').value;
+        const fileName = `${planNumber}_${unitNumber}_${profileType}_${doorSide}.pdf`;
+
+        // מחכה קצת בין קבצים כדי לעדכן DOM
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        generatePDFForUnit(fileName);
+    }
+
+    hideOverlayPending(); // מציג ✓ בסוף
+});
+
+function generatePDFForUnit(unitNumber) {
+    // הפונקציה שלך שמייצרת PDF על פי הערכים הנוכחיים בשדות
+    draw(); // אם צריך לעדכן את השרטוט לפני ההורדה
+    // כאן הקוד ליצירת PDF והורדתו
+	downloadPdf();
+}
+
+const excelFileInput = document.getElementById('excelFile');
+const fileNameSpan = document.querySelector('.file-name');
+
+excelFileInput.addEventListener('change', () => {
+    if (excelFileInput.files.length > 0) {
+        fileNameSpan.textContent = excelFileInput.files[0].name;
+    } else {
+        fileNameSpan.textContent = "לא נבחר קובץ";
+    }
+});
 
 // הפעלה ראשונית
 draw();
