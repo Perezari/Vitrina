@@ -1051,7 +1051,6 @@ batchSaveBtn.addEventListener("click", async function () {
         // עדכון שדות כמו קודם
         frontW.value = row['רוחב'] || '';
         cabH.value = row['אורך'] || '';
-        document.getElementById('partName').value = partName;
 
         const doorSide = partName.includes('ימין') ? 'right' :
             partName.includes('שמאל') ? 'left' : '';
