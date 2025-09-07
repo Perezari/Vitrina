@@ -449,14 +449,12 @@ async function downloadPdf() {
         // ====== הוספת לוגו לפי ספק ======
         function addLogo(pdf) {
             const supplier = unitDetails.Sapak;
-            const logo = ProfileConfig.getLogoBySupplier("avivi");
             const logo2 = ProfileConfig.getLogoBySupplier("Sketch_for_dofen");
 
-            if (!supplier || !logo) return;
+            if (!supplier) return;
 
             const logoWidth = 40;
             const logoHeight = 25;
-            pdf.addImage(logo, "PNG", 10, 10, logoWidth, logoHeight);
 
             if (unitDetails.profileType === '424' && logo2) {
                 const pageHeight = pdf.internal.pageSize.getHeight(); // גובה הדף
@@ -467,6 +465,36 @@ async function downloadPdf() {
         }
 
         addLogo(pdf);
+		
+		async function addLogoSvg(pdf, logo) {
+			if (!logo) return;
+
+			let svgText;
+
+			// בדיקה אם זה Data URI (base64)
+			if (logo.startsWith("data:image/svg+xml")) {
+				const base64 = logo.split(",")[1];
+				svgText = atob(base64);
+			} else {
+				// SVG כטקסט רגיל
+				svgText = logo;
+			}
+
+			// ממירים ל־DOM
+			const svgElement = new DOMParser().parseFromString(svgText, "image/svg+xml").documentElement;
+
+			// מוסיפים ל־PDF
+			await pdf.svg(svgElement, {
+				x: 10,
+				y: 10,
+				width: 40,
+				height: 25
+			});
+		}
+
+		// לוגו מ־ProfileConfig (יכול להיות טקסט או Data URI)
+		const logo = ProfileConfig.getLogoBySupplier("avivi_svg"); 
+		await addLogoSvg(pdf, logo);
 
         function validateRequiredFields(fields) {
             let allValid = true;
