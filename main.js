@@ -942,19 +942,46 @@ excelFile.addEventListener("change", function (e) {
         const workbook = XLSX.read(data, { type: 'array' });
 
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-        // range: 6 => להתחיל מהשורה 7 (B7) שבה יש כותרות
         excelRows = XLSX.utils.sheet_to_json(sheet, { range: 6 });
 
         console.log("עמודות שהתקבלו:", Object.keys(excelRows[0]));
         console.log("דוגמה לשורה ראשונה:", excelRows[0]);
+
+        // בניית מיפוי יחידות → כל השורות שלהן
+        unitsMap = {};
+        for (const row of excelRows) {
+            if (!row['יחידה']) continue;
+            const unitNum = row['יחידה'];
+            if (!unitsMap[unitNum]) unitsMap[unitNum] = [];
+            unitsMap[unitNum].push(row);
+        }
+
+        // חישוב מטא־דאטה לכל יחידה (כיוון דלת + מלואה בפועל)
+        unitsMeta = {};
+        for (const [unitNum, rows] of Object.entries(unitsMap)) {
+            let doorSide = '';
+            let glass = '';
+
+            const doorRow = rows.find(r => (r['שם החלק'] || '').includes('דלת'));
+            if (doorRow) {
+                const doorName = doorRow['שם החלק'];
+                doorSide = doorName.includes('ימין') ? 'left' :
+                           doorName.includes('שמאל') ? 'right' : '';
+            }
+
+            const glassRow = rows.find(r => (r['מלואה'] || '') && r['מלואה'] !== 'NO_ZIP');
+            if (glassRow) {
+                glass = glassRow['מלואה'];
+            }
+
+            unitsMeta[unitNum] = { doorSide, glass };
+        }
 
         // הפיכת השדה unitNum לרשימה נפתחת אם הוא עדיין input
         if (unitNumInput.tagName.toLowerCase() === "input") {
             const select = document.createElement("select");
             select.id = "unitNum";
 
-            // מספרי היחידות מהקובץ, מסוננים
             const units = [...new Set(
                 excelRows
                     .map(r => String(r['יחידה']).trim())
@@ -966,22 +993,17 @@ excelFile.addEventListener("change", function (e) {
                 option.value = unit;
                 option.textContent = unit;
                 select.appendChild(option);
-
-                // בחר אוטומטית את הערך הראשון
                 if (index === 0) select.value = unit;
             });
 
-            // מחליפים את השדה ב-DOM
             unitContainer.replaceChild(select, unitNumInput);
             unitNumInput = select;
         }
 
-        // מאזינים לשינוי ברשימה
         unitNumInput.addEventListener("change", function () {
             searchUnit(this.value);
         });
 
-        // ניסיון ראשוני אם כבר יש מספר יחידה בשדה
         searchUnit(unitNumInput.value);
     };
     reader.readAsArrayBuffer(file);
@@ -1002,19 +1024,30 @@ function searchUnit(unitNum) {
     frontW.value = row['רוחב'] || '';
     cabH.value = row['אורך'] || '';
 
-    // קביעת כיוון דלת לפי שם החלק
+    let doorSide = '';
+    let glass = row['מלואה'] || '';
+
+    // קודם כל ננסה מהשורה עצמה
     if (row['שם החלק']) {
-        const partName = row['שם החלק'].toLowerCase();
-        if (partName.includes('ימין')) sideSelect.value = 'left';
-        else if (partName.includes('שמאל')) sideSelect.value = 'right';
+        const partName = row['שם החלק'];
+        if (partName.includes('ימין')) doorSide = 'left';
+        else if (partName.includes('שמאל')) doorSide = 'right';
     }
 
-    // סוג חומר -> גוון + סוג פרופיל
+    // אם אין מידע מהשורה → נשתמש במטא־דאטה של היחידה
+    if (!doorSide && unitsMeta[unitNum]?.doorSide) {
+        doorSide = unitsMeta[unitNum].doorSide;
+    }
+    if (glass === 'NO_ZIP' && unitsMeta[unitNum]?.glass) {
+        glass = unitsMeta[unitNum].glass;
+    }
+
+    sideSelect.value = doorSide;
+
     if (row['סוג החומר']) {
         const [color, type] = row['סוג החומר'].split('_');
         document.getElementById('profileColor').value = color || '';
 
-        // חיפוש ספק לפי סוג הפרופיל
         let foundSupplier = null;
         for (const supplier in ProfileConfig.SUPPLIERS_PROFILES_MAP) {
             if (ProfileConfig.SUPPLIERS_PROFILES_MAP[supplier].includes(type)) {
@@ -1024,22 +1057,17 @@ function searchUnit(unitNum) {
         }
 
         if (foundSupplier) {
-            // עדכון הספק בשדה עם שם בעברית
             sapakSelect.value = foundSupplier;
-            fillProfileOptions(); // עדכון הרשימה בהתאם לספק
+            fillProfileOptions();
         }
 
         profileSelect.value = type || '';
     }
 
-    if (row['מלואה']) {
-        document.getElementById('glassModel').value = row['מלואה'];
-    }
-
+    document.getElementById('glassModel').value = glass;
     draw();
 }
 
-// חיפוש בלייב כשכותבים בשדה יחידה
 unitNumInput.addEventListener("input", function () {
     searchUnit(this.value);
 });
@@ -1057,31 +1085,35 @@ function hideOverlayPending() {
     const overlay = document.getElementById('overlay');
     document.getElementById('overlayText').textContent = "קבצים נשלחו להורדה. אנא אשרו הורדות בדפדפן.";
     document.getElementById('overlayAnimation').textContent = "⬇️";
-    setTimeout(() => {
-        overlay.style.display = 'none';
-    }, 3000); // 3 שניות לפני הסתרה
+    setTimeout(() => { overlay.style.display = 'none'; }, 3000);
 }
 
 batchSaveBtn.addEventListener("click", async function () {
     if (!excelRows.length) return alert("אין קובץ Excel טעון!");
 
-    showOverlay(); // מציג חלון המתנה
+    showOverlay();
 
-    // יצירת PDF לכל יחידה עם small delay כדי לייבא ערכים ל-DOM
     for (const row of excelRows) {
         if (!row['יחידה']) continue;
 
         const unitNumber = row['יחידה'];
         const partName = row['שם החלק'] || '';
         const material = row['סוג החומר'] || '';
-        const glass = row['מלואה'] || '';
+        let glass = row['מלואה'] || '';
 
-        // עדכון שדות כמו קודם
+        let doorSide = '';
+        if (partName.includes('ימין')) doorSide = 'left';
+        else if (partName.includes('שמאל')) doorSide = 'right';
+
+        if (!doorSide && unitsMeta[unitNumber]?.doorSide) {
+            doorSide = unitsMeta[unitNumber].doorSide;
+        }
+        if (glass === 'NO_ZIP' && unitsMeta[unitNumber]?.glass) {
+            glass = unitsMeta[unitNumber].glass;
+        }
+
         frontW.value = row['רוחב'] || '';
         cabH.value = row['אורך'] || '';
-
-        const doorSide = partName.includes('ימין') ? 'left' :
-						 partName.includes('שמאל') ? 'right' : '';
         sideSelect.value = doorSide;
 
         let profileType = '';
@@ -1104,20 +1136,17 @@ batchSaveBtn.addEventListener("click", async function () {
         profileSelect.value = profileType;
         document.getElementById('glassModel').value = glass;
 
-        // עדכון שדה היחידה
         if (unitNumInput.tagName === 'SELECT') unitNumInput.value = unitNumber;
         else unitNumInput.value = unitNumber;
 
         const planNumber = document.getElementById('planNum').value;
         const fileName = `${planNumber}_${unitNumber}_${profileType}_${doorSide}.pdf`;
 
-        // מחכה קצת בין קבצים כדי לעדכן DOM
         await new Promise(resolve => setTimeout(resolve, 50));
-
         generatePDFForUnit(fileName);
     }
 
-    hideOverlayPending(); // מציג ✓ בסוף
+    hideOverlayPending();
 });
 
 function generatePDFForUnit(unitNumber) {
