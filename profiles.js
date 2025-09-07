@@ -4,7 +4,7 @@ window.ProfileConfig = (function () {
     // מיפוי ספקים לפרופילים הזמינים
     const SUPPLIERS_PROFILES_MAP = {
         bluran: ["קואדרו",],
-        nilsen: ["424",]
+        nilsen: ["דגם424",]
     };
 
     // לוגואים של ספקים
@@ -37,7 +37,7 @@ window.ProfileConfig = (function () {
             LeftNotes: "מידות לנושאי מדף עד מרכז קידוח בקוטר 2.5 מ\"מ", //תיאור
             CenterNotes: "", //תיאור
         },
-        "424": {
+        "דגם424": {
             // מסגרת פנימית
             innerFrameStroke: "#2c3e50",
             innerFrameStrokeWidth: 0.5,

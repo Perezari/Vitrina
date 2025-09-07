@@ -1009,31 +1009,28 @@ function searchUnit(unitNum) {
         else if (partName.includes('שמאל')) sideSelect.value = 'right';
     }
 
-// סוג חומר -> גוון + סוג פרופיל
-if (row['סוג החומר']) {
-    // הסרת המילה "דגם" אם היא קיימת
-    const cleanedTypeStr = row['סוג החומר'].replace(/דגם/g, '').trim();
+    // סוג חומר -> גוון + סוג פרופיל
+    if (row['סוג החומר']) {
+        const [color, type] = row['סוג החומר'].split('_');
+        document.getElementById('profileColor').value = color || '';
 
-    const [color, type] = cleanedTypeStr.split('_');
-    document.getElementById('profileColor').value = color || '';
-
-    // חיפוש ספק לפי סוג הפרופיל
-    let foundSupplier = null;
-    for (const supplier in ProfileConfig.SUPPLIERS_PROFILES_MAP) {
-        if (ProfileConfig.SUPPLIERS_PROFILES_MAP[supplier].includes(type)) {
-            foundSupplier = supplier;
-            break;
+        // חיפוש ספק לפי סוג הפרופיל
+        let foundSupplier = null;
+        for (const supplier in ProfileConfig.SUPPLIERS_PROFILES_MAP) {
+            if (ProfileConfig.SUPPLIERS_PROFILES_MAP[supplier].includes(type)) {
+                foundSupplier = supplier;
+                break;
+            }
         }
-    }
 
-    if (foundSupplier) {
-        // עדכון הספק בשדה עם שם בעברית
-        sapakSelect.value = foundSupplier;
-        fillProfileOptions(); // עדכון הרשימה בהתאם לספק
-    }
+        if (foundSupplier) {
+            // עדכון הספק בשדה עם שם בעברית
+            sapakSelect.value = foundSupplier;
+            fillProfileOptions(); // עדכון הרשימה בהתאם לספק
+        }
 
-    profileSelect.value = type || '';
-}
+        profileSelect.value = type || '';
+    }
 
     if (row['מלואה']) {
         document.getElementById('glassModel').value = row['מלואה'];
@@ -1083,8 +1080,8 @@ batchSaveBtn.addEventListener("click", async function () {
         frontW.value = row['רוחב'] || '';
         cabH.value = row['אורך'] || '';
 
-        const doorSide = partName.includes('ימין') ? 'right' :
-            partName.includes('שמאל') ? 'left' : '';
+        const doorSide = partName.includes('ימין') ? 'left' :
+						 partName.includes('שמאל') ? 'right' : '';
         sideSelect.value = doorSide;
 
         let profileType = '';
