@@ -761,8 +761,8 @@ excelFile.addEventListener("change", function (e) {
 
             let doorSide = '';
             const doorName = doorRow['שם החלק'] || '';
-            if (doorName.includes('ימין')) doorSide = 'right';
-            else if (doorName.includes('שמאל')) doorSide = 'left';
+            if (doorName.includes('ימין')) doorSide = 'left';
+            else if (doorName.includes('שמאל')) doorSide = 'right';
 
             let glass = doorRow['מלואה'] || '';
             if (!glass || glass === 'NO_ZIP') {
