@@ -38,7 +38,6 @@ function ensureAlefFont(pdf) {
     }
     console.warn('Alef font not found; Hebrew may not render correctly.');
 }
-
 function withTempInDOM(svgNode, work) {
     const holder = document.createElement('div');
     holder.style.position = 'fixed';
@@ -50,7 +49,6 @@ function withTempInDOM(svgNode, work) {
     try { return work(svgNode); }
     finally { document.body.removeChild(holder); }
 }
-
 function expandViewBoxToContent(svg, padding = 8) {
     const bbox = svg.getBBox();
     const minX = Math.floor(bbox.x - padding);
@@ -59,7 +57,6 @@ function expandViewBoxToContent(svg, padding = 8) {
     const height = Math.ceil(bbox.height + 2 * padding);
     svg.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
 }
-
 // ===== המרת CSS לערכי attributes (stroke/dash/fill וכו׳) =====
 function inlineComputedStyles(svgRoot) {
     svgRoot.querySelectorAll('*').forEach(el => {
@@ -103,7 +100,6 @@ function inlineComputedStyles(svgRoot) {
         }
     });
 }
-
 // ===== תיקון טקסט עברית (bidi-override) =====
 function fixHebrewText(svgRoot) {
     const hebrewRegex = /[\u0590-\u05FF]/;
@@ -120,7 +116,6 @@ function fixHebrewText(svgRoot) {
     });
     svgRoot.setAttribute('direction', 'rtl');
 }
-
 /**
  * מרכז מספרי מידות על הקווים האנכיים או אופקיים,
  * כולל תמיכה בטקסטים עם סיבוב (rotate)
@@ -171,7 +166,6 @@ function centerDimensionNumbers(svgRoot) {
         }
     });
 }
-
 // ===== חיצים במקום markers (תמיכה טובה יותר ב-PDF) =====
 function replaceMarkersWithTriangles(svgRoot) {
     const lines = svgRoot.querySelectorAll('line, path, polyline');
@@ -214,7 +208,6 @@ function replaceMarkersWithTriangles(svgRoot) {
         el.removeAttribute('marker-end');
     });
 }
-
 // ===== חישוב התאמה + מיקום (יישור לשמאל/מרכז) =====
 function fitAndPlaceBox(pdfWidth, pdfHeight, vbWidth, vbHeight, margin = 10, extraScale = 1.0, printShrink = 1.0, align = 'center') {
     const availW = pdfWidth - 2 * margin;
@@ -241,7 +234,6 @@ function fitAndPlaceBox(pdfWidth, pdfHeight, vbWidth, vbHeight, margin = 10, ext
     const y = (pdfHeight - drawH) / 2; // נשאר ממורכז אנכית
     return { x, y, width: drawW, height: drawH };
 }
-
 /**
  * מכריח כל rect.note-box להיות בגודל קבוע NOTE_BOX_W × NOTE_BOX_H,
  * ממורכז סביב text.note-text שבאותו <g> — בלי לשנות stroke-width.
@@ -316,7 +308,6 @@ function forceNoteBoxesSize(svgRoot, w = NOTE_BOX_W, h = NOTE_BOX_H) {
         r.setAttribute('filter', 'url(#noteBoxShadow)');
     });
 }
-
 // נקודת מידה כחולה שלא נעלמת ב-PDF ולא משתנה בעובי
 function addDimDot(svg, x, y, r = 2.2) {
     const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -331,7 +322,6 @@ function addDimDot(svg, x, y, r = 2.2) {
     c.setAttribute('vector-effect', 'non-scaling-stroke');
     svg.appendChild(c);
 }
-
 // ====== פונקציית הייצוא ======
 async function downloadPdf() {
     try {
@@ -453,9 +443,6 @@ async function downloadPdf() {
 
             if (!supplier) return;
 
-            const logoWidth = 40;
-            const logoHeight = 25;
-
             if (unitDetails.profileType === '424' && logo2) {
                 const pageHeight = pdf.internal.pageSize.getHeight(); // גובה הדף
                 const xPos = 5; // מרחק מהצד השמאלי
@@ -465,56 +452,36 @@ async function downloadPdf() {
         }
 
         addLogo(pdf);
-		
-		async function addLogoSvg(pdf, logo) {
-			if (!logo) return;
 
-			let svgText;
+        async function addLogoSvg(pdf, logo) {
+            if (!logo) return;
 
-			// בדיקה אם זה Data URI (base64)
-			if (logo.startsWith("data:image/svg+xml")) {
-				const base64 = logo.split(",")[1];
-				svgText = atob(base64);
-			} else {
-				// SVG כטקסט רגיל
-				svgText = logo;
-			}
+            let svgText;
 
-			// ממירים ל־DOM
-			const svgElement = new DOMParser().parseFromString(svgText, "image/svg+xml").documentElement;
-
-			// מוסיפים ל־PDF
-			await pdf.svg(svgElement, {
-				x: 10,
-				y: 10,
-				width: 40,
-				height: 25
-			});
-		}
-
-		// לוגו מ־ProfileConfig (יכול להיות טקסט או Data URI)
-		const logo = ProfileConfig.getLogoBySupplier("avivi_svg"); 
-		await addLogoSvg(pdf, logo);
-
-        function validateRequiredFields(fields) {
-            let allValid = true;
-            for (let id of fields) {
-                const input = document.getElementById(id);
-                if (input) {
-                    if (input.value.trim() === '') {
-                        alert('אנא מלא את השדה: ' + input.previousElementSibling.textContent);
-                        input.style.border = '2px solid red';
-                        input.focus();
-                        allValid = false;
-                        break; // עוצר בלחיצה הראשונה
-                    } else {
-                        // אם השדה לא ריק – מחזיר את העיצוב הרגיל
-                        input.style.border = '';
-                    }
-                }
+            // בדיקה אם זה Data URI (base64)
+            if (logo.startsWith("data:image/svg+xml")) {
+                const base64 = logo.split(",")[1];
+                svgText = atob(base64);
+            } else {
+                // SVG כטקסט רגיל
+                svgText = logo;
             }
-            return allValid;
+
+            // ממירים ל־DOM
+            const svgElement = new DOMParser().parseFromString(svgText, "image/svg+xml").documentElement;
+
+            // מוסיפים ל־PDF
+            await pdf.svg(svgElement, {
+                x: 10,
+                y: 10,
+                width: 40,
+                height: 25
+            });
         }
+
+        // לוגו מ־ProfileConfig (יכול להיות טקסט או Data URI)
+        const logo = ProfileConfig.getLogoBySupplier("avivi_svg");
+        await addLogoSvg(pdf, logo);
 
         const requiredFields = ['Sapak', 'planNum', 'unitNum', 'partName', 'profileType', 'profileColor', 'glassModel',];
         if (!validateRequiredFields(requiredFields)) return;
@@ -539,7 +506,6 @@ async function downloadPdf() {
         alert('אירעה שגיאה בייצוא PDF. בדוק את הקונסול לפרטים.');
     }
 }
-
 function addNoteRotated(svg, x, y, text, angle = 90) {
     // מחשבים BBox זמני כדי להתאים את הריבוע
     const tempText = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -574,7 +540,6 @@ function addNoteRotated(svg, x, y, text, angle = 90) {
     </g>
   `);
 }
-
 function draw() {
     const frontW = mm(+document.getElementById('frontW').value);
     const cabH = mm(+document.getElementById('cabH').value);
@@ -861,14 +826,6 @@ function draw() {
 }
 
 // חיבור כפתורים
-const calcBtn = document.getElementById('calcBtn');
-if (calcBtn) {
-    calcBtn.addEventListener('click', () => {
-        calcBtn.classList.add('loading');
-        setTimeout(() => { draw(); calcBtn.classList.remove('loading'); }, 300);
-    });
-}
-
 const downloadBtn = document.getElementById('downloadBtn');
 if (downloadBtn) {
     downloadBtn.addEventListener('click', async (e) => {
@@ -1104,6 +1061,26 @@ unitNumInput.addEventListener("input", function () {
     searchUnit(this.value);
 });
 
+function validateRequiredFields(fields) {
+    let allValid = true;
+    for (let id of fields) {
+        const input = document.getElementById(id);
+        if (input) {
+            if (input.value.trim() === '') {
+                alert('אנא מלא את השדה: ' + input.previousElementSibling.textContent);
+                input.style.border = '2px solid red';
+                input.focus();
+                allValid = false;
+                break; // עוצר בלחיצה הראשונה
+            } else {
+                // אם השדה לא ריק – מחזיר את העיצוב הרגיל
+                input.style.border = '';
+            }
+        }
+    }
+    return allValid;
+}
+
 const batchSaveBtn = document.getElementById("batchSaveBtn");
 
 function showOverlay() {
@@ -1122,6 +1099,9 @@ function hideOverlayPending() {
 
 batchSaveBtn.addEventListener("click", async function () {
     if (!excelRows.length) return alert("אין קובץ Excel טעון!");
+
+    const requiredFields = ['Sapak', 'planNum', 'unitNum', 'partName', 'profileType', 'profileColor', 'glassModel',];
+    if (!validateRequiredFields(requiredFields)) return;
 
     showOverlay();
 
@@ -1181,9 +1161,7 @@ batchSaveBtn.addEventListener("click", async function () {
 });
 
 function generatePDFForUnit(unitNumber) {
-    // הפונקציה שלך שמייצרת PDF על פי הערכים הנוכחיים בשדות
-    draw(); // אם צריך לעדכן את השרטוט לפני ההורדה
-    // כאן הקוד ליצירת PDF והורדתו
+    draw();
     downloadPdf();
 }
 
