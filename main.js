@@ -947,6 +947,38 @@ excelFile.addEventListener("change", function (e) {
         console.log("עמודות שהתקבלו:", Object.keys(excelRows[0]));
         console.log("דוגמה לשורה ראשונה:", excelRows[0]);
 
+        // בדיקה אם קיימת לפחות דופן ויטרינה פינתית
+        const hasAnyCorner = excelRows.some(r => (r['שם החלק'] || '').includes('דופן ויטרינה פינתית'));
+        if (!hasAnyCorner) {
+            alert("לא נמצאה דופן ויטרינה פינתית בקובץ. לא ניתן להמשיך.");
+
+            // השבתת כפתורים
+            batchSaveBtn.disabled = true;
+            batchSaveBtn.style.backgroundColor = "#ccc";
+            batchSaveBtn.style.cursor = "not-allowed";
+
+            downloadBtn.disabled = true;
+            downloadBtn.style.backgroundColor = "#ccc";
+            downloadBtn.style.cursor = "not-allowed";
+
+            // איפוס השרטוט
+            const svg = document.getElementById('svg');
+            const overlay = document.querySelector('.svg-overlay');
+            if (svg) svg.innerHTML = "";
+            if (overlay) overlay.style.display = 'none';
+
+            return; // לא ממשיכים הלאה
+        } else {
+            // הפעלה מחדש של כפתורים אם הכל תקין
+            batchSaveBtn.disabled = false;
+            batchSaveBtn.style.backgroundColor = "";
+            batchSaveBtn.style.cursor = "pointer";
+
+            downloadBtn.disabled = false;
+            downloadBtn.style.backgroundColor = "";
+            downloadBtn.style.cursor = "pointer";
+        }
+
         // בניית מיפוי יחידות → כל השורות שלהן
         unitsMap = {};
         for (const row of excelRows) {
@@ -959,19 +991,22 @@ excelFile.addEventListener("change", function (e) {
         // חישוב מטא־דאטה לכל יחידה (כיוון דלת + מלואה בפועל)
         unitsMeta = {};
         for (const [unitNum, rows] of Object.entries(unitsMap)) {
-            let doorSide = '';
-            let glass = '';
-
+            const hasCorner = rows.some(r => (r['שם החלק'] || '').includes('דופן ויטרינה פינתית'));
             const doorRow = rows.find(r => (r['שם החלק'] || '').includes('דלת'));
-            if (doorRow) {
-                const doorName = doorRow['שם החלק'];
-                doorSide = doorName.includes('ימין') ? 'left' :
-                           doorName.includes('שמאל') ? 'right' : '';
+
+            if (!hasCorner || !doorRow) {
+                continue; // היחידה הזו לא נכנסת לרשימה
             }
 
-            const glassRow = rows.find(r => (r['מלואה'] || '') && r['מלואה'] !== 'NO_ZIP');
-            if (glassRow) {
-                glass = glassRow['מלואה'];
+            let doorSide = '';
+            const doorName = doorRow['שם החלק'] || '';
+            if (doorName.includes('ימין')) doorSide = 'right';
+            else if (doorName.includes('שמאל')) doorSide = 'left';
+
+            let glass = doorRow['מלואה'] || '';
+            if (!glass || glass === 'NO_ZIP') {
+                const glassRow = rows.find(r => (r['מלואה'] || '') && r['מלואה'] !== 'NO_ZIP');
+                if (glassRow) glass = glassRow['מלואה'];
             }
 
             unitsMeta[unitNum] = { doorSide, glass };
@@ -982,12 +1017,7 @@ excelFile.addEventListener("change", function (e) {
             const select = document.createElement("select");
             select.id = "unitNum";
 
-            const units = [...new Set(
-                excelRows
-                    .map(r => String(r['יחידה']).trim())
-                    .filter(u => u && u !== "undefined")
-            )];
-
+            const units = Object.keys(unitsMeta); // משתמשים במטא (כבר אחרי סינון)
             units.forEach((unit, index) => {
                 const option = document.createElement("option");
                 option.value = unit;
@@ -1004,7 +1034,9 @@ excelFile.addEventListener("change", function (e) {
             searchUnit(this.value);
         });
 
-        searchUnit(unitNumInput.value);
+        if (unitNumInput.value) {
+            searchUnit(unitNumInput.value);
+        }
     };
     reader.readAsArrayBuffer(file);
 });
@@ -1096,18 +1128,17 @@ batchSaveBtn.addEventListener("click", async function () {
     for (const row of excelRows) {
         if (!row['יחידה']) continue;
 
-        const unitNumber = row['יחידה'];
         const partName = row['שם החלק'] || '';
+
+        // סינון: הורדה רק עבור דופן ויטרינה פינתית
+        if (!partName.includes('דופן ויטרינה פינתית')) continue;
+
+        const unitNumber = row['יחידה'];
         const material = row['סוג החומר'] || '';
         let glass = row['מלואה'] || '';
 
-        let doorSide = '';
-        if (partName.includes('ימין')) doorSide = 'left';
-        else if (partName.includes('שמאל')) doorSide = 'right';
-
-        if (!doorSide && unitsMeta[unitNumber]?.doorSide) {
-            doorSide = unitsMeta[unitNumber].doorSide;
-        }
+        // קביעת כיוון דלת לפי המטא
+        let doorSide = unitsMeta[unitNumber]?.doorSide || '';
         if (glass === 'NO_ZIP' && unitsMeta[unitNumber]?.glass) {
             glass = unitsMeta[unitNumber].glass;
         }
