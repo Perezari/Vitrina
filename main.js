@@ -891,5 +891,5 @@ excelFileInput.addEventListener('change', () => {
     }
 });
 
-// הפעלה ראשונית
+// First draw
 draw();
