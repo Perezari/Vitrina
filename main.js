@@ -15,6 +15,7 @@ let unitNumInput = document.getElementById("unitNum");
 let excelRows = [];
 const downloadBtn = document.getElementById('downloadBtn');
 const batchSaveBtn = document.getElementById("batchSaveBtn");
+batchSaveBtn.style.display = 'none';
 const excelFileInput = document.getElementById('excelFile');
 const fileNameSpan = document.querySelector('.file-name');
 
