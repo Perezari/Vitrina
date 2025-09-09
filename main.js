@@ -42,6 +42,11 @@ function addDimDot(svg, x, y, r = 2.2) {
 // Inserts a <g> element containing the <rect> and <text>, rotated around the specified coordinates.
 // Default rotation angle is 90 degrees.
 function addNoteRotated(svg, x, y, text, angle = 90) {
+    // קבלת מידות ה-SVG
+    const svgRect = svg.getBoundingClientRect();
+    const svgWidth = svg.viewBox.baseVal.width || svgRect.width;
+    const svgHeight = svg.viewBox.baseVal.height || svgRect.height;
+
     // מחשבים BBox זמני כדי להתאים את הריבוע
     const tempText = document.createElementNS("http://www.w3.org/2000/svg", "text");
     tempText.setAttribute("class", "note-text");
@@ -51,29 +56,69 @@ function addNoteRotated(svg, x, y, text, angle = 90) {
     tempText.setAttribute("dominant-baseline", "middle");
     tempText.textContent = text;
     svg.appendChild(tempText);
-
     const bbox = tempText.getBBox();
     svg.removeChild(tempText);
 
     const padding = 10;
-    const rectX = bbox.x - padding;
-    const rectY = bbox.y - padding;
+
+    // חישוב מידות הקופסה לאחר הסיבוב
+    const radians = angle * Math.PI / 180;
+    const cos = Math.abs(Math.cos(radians));
+    const sin = Math.abs(Math.sin(radians));
+
+    const rotatedWidth = (bbox.width + padding * 2) * cos + (bbox.height + padding * 2) * sin;
+    const rotatedHeight = (bbox.width + padding * 2) * sin + (bbox.height + padding * 2) * cos;
+
+    // בדיקת גבולות ותיקון המיקום
+    let adjustedX = x;
+    let adjustedY = y;
+
+    // בדיקת גבול שמאל
+    if (x - rotatedWidth / 2 < 0) {
+        adjustedX = rotatedWidth / 2;
+    }
+
+    // בדיקת גבול ימין
+    if (x + rotatedWidth / 2 > svgWidth) {
+        adjustedX = svgWidth - rotatedWidth / 2;
+    }
+
+    // בדיקת גבול עליון
+    if (y - rotatedHeight / 2 < 0) {
+        adjustedY = rotatedHeight / 2 + 20;
+    }
+
+    // בדיקת גבול תחתון
+    if (y + rotatedHeight / 2 > svgHeight) {
+        adjustedY = svgHeight - rotatedHeight / 2;
+    }
+
+    // חישוב מיקום הריבוע עם המיקום המתוקן
+    const rectX = bbox.x - padding + (adjustedX - x);
+    const rectY = bbox.y - padding + (adjustedY - y);
     const rectW = bbox.width + padding * 2;
     const rectH = bbox.height + padding * 2;
 
     svg.insertAdjacentHTML("beforeend", `
-    <g transform="rotate(${angle}, ${x}, ${y})">
-      <rect class="note-box"
-            x="${rectX}" y="${rectY}"
-            width="${rectW}" height="${rectH}"></rect>
-      <text class="note-text"
-            x="${x}" y="${y}"
-            text-anchor="middle"
-            dominant-baseline="middle">
-        ${text}
-      </text>
-    </g>
-  `);
+        <g transform="rotate(${angle}, ${adjustedX}, ${adjustedY})">
+            <rect class="note-box"
+                x="${rectX}" 
+                y="${rectY}"
+                width="${rectW}" 
+                height="${rectH}">
+            </rect>
+            <text class="note-text"
+                x="${adjustedX}" 
+                y="${adjustedY}"
+                text-anchor="middle"
+                dominant-baseline="middle">
+                ${text}
+            </text>
+        </g>
+    `);
+
+    // החזרת המיקום הסופי למקרה שנרצה לדעת איפה הקופסה בסופו של דבר
+    return { x: adjustedX, y: adjustedY };
 }
 
 // Validates that all required input fields are filled.
@@ -652,8 +697,8 @@ function draw() {
 
     const trueLeft = padX - 60;     // הקו הקיצוני בשמאל
     const trueRight = padX + W + 30; // הקו הקיצוני בימין
-    const noteHeight = padY + H / 2;
-    const noteOffset = 50;
+    const noteHeight = padY + H / 2; //מיקום אמצע לגובה
+    const noteOffset = 50; // הזחה מהקצה
 
     if (sideSelect === "right") {
         // מצב רגיל
