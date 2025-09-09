@@ -10,7 +10,7 @@ const PRINT_ALIGN = 'center';     // Horizontal alignment: 'left', 'center', 'ri
 
 // Note box dimensions
 const NOTE_BOX_W = 430;           // Fixed width in pixels-purple of the SVG
-const NOTE_BOX_H = 30;            // Fixed height in pixels-purple of the SVG
+const NOTE_BOX_H = 29;            // Fixed height in pixels-purple of the SVG
 
 // Ensures the PDF uses the "Alef" font for Hebrew text.
 // Tries the font from the PDF's existing font list.
@@ -281,8 +281,8 @@ function forceNoteBoxesSize(svgRoot, w = NOTE_BOX_W, h = NOTE_BOX_H) {
 
         // מבטיח שהטקסט נכנס יפה במסגרת
         const tb = text.getBBox();
-        const cx = tb.x + tb.width / 2;
-        const cy = tb.y + tb.height / 2;
+        const cx = tb.x + tb.width / 2 + 6;
+        const cy = tb.y + tb.height / 2 + 1;
 
         // קופסה קבועה סביב הטקסט
         const x = cx - w / 2 - 9;
