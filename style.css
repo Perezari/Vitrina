@@ -42,7 +42,15 @@ p.subtitle {
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
   border: 1px dashed #d1e2f0;
   height: auto;
-  max-height: none;   /* מבטל את ההגבלה */
+  max-height: none;   /* בטלפון נותנים חופש מלא */
+}
+
+/* במסכים גדולים - מחשב */
+@media (min-width: 900px) {
+  .card.drawing-card {
+    max-height: 80vh;   /* לא לחרוג מגובה חלון */
+    overflow: hidden;   /* שלא תהיה גלילה פנימית */
+  }
 }
 
     .card.drawing-card {
