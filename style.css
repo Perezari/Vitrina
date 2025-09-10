@@ -36,14 +36,13 @@ p.subtitle {
 }
 
 .card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    border: 1px dashed #d1e2f0;
-    height: auto;
-    max-height: 80vh;
-    object-fit: contain; /* שומר על פרופורציה בתוך הקונטיינר */
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  border: 1px dashed #d1e2f0;
+  height: auto;
+  max-height: none;   /* מבטל את ההגבלה */
 }
 
     .card.drawing-card {
