@@ -8,6 +8,7 @@ body {
     padding: 24px;
     direction: rtl;
     text-align: right;
+    overflow: hidden; /* מונע פסי גלילה */
 }
 
 body, svg, text {
@@ -31,27 +32,34 @@ p.subtitle {
     display: grid;
     grid-template-columns: 360px 1fr;
     gap: 24px;
-    align-items: start;
+    align-items: stretch;
 }
 
 .card {
     background: #fff;
     border-radius: 16px;
-    padding: 24px;
+    padding: 16px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.08);
     border: 1px dashed #d1e2f0;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain; /* שומר על פרופורציה בתוך הקונטיינר */
 }
 
     .card.drawing-card {
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
-        min-height: 700px;
         position: relative;
-        padding: 0;
-        overflow: hidden;
+        overflow: hidden; /* חוסם חריגה */
     }
+
+        .card.drawing-card svg {
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+            object-fit: contain; /* שומר על פרופורציות בתוך הקונטיינר */
+        }
 
     .card h2 {
         margin-top: 0;
@@ -186,7 +194,9 @@ svg {
     border-radius: 12px;
     width: 100%;
     height: 100%;
-    max-height: 1600px;
+    max-height: 72vh;
+    display: block; /* שלא יגרום לגלילה מיותרת */
+    margin: 0 auto; /* מרכז אופקית */
 }
 
 text {

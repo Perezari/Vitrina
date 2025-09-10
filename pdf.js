@@ -281,15 +281,16 @@ function forceNoteBoxesSize(svgRoot, w = NOTE_BOX_W, h = NOTE_BOX_H) {
 
         // מבטיח שהטקסט נכנס יפה במסגרת
         const tb = text.getBBox();
-        const cx = tb.x + tb.width / 2 + 6;
-        const cy = tb.y + tb.height / 2 + 1;
+        const cx = tb.x + tb.width / 2;
+        const cy = tb.y + tb.height / 2;
 
-        // קופסה קבועה סביב הטקסט
-        const x = cx - w / 2 - 9;
-        const y = cy - h / 2 - 5;
+        // קופסה ממורכזת סביב מרכז הטקסט
+        const rectX = cx - w / 2;
+        const rectY = cy - h / 2 - 3;
 
-        rect.setAttribute('x', String(x));
-        rect.setAttribute('y', String(y));
+        rect.setAttribute('x', rectX);
+        rect.setAttribute('y', rectY);
+
         rect.setAttribute('width', String(w));
         rect.setAttribute('height', String(h));
 
