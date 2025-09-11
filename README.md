@@ -1,4 +1,4 @@
-# 📐 Corner Showcase Wall Detail Generator (מחולל פרט לדופן ויטרינה פינתית)
+# 📐 מחולל פרט לדופן ויטרינה פינתית
 
 ![Language](https://img.shields.io/badge/language-JavaScript-yellow.svg)
 ![Frontend](https://img.shields.io/badge/frontend-HTML%2FCSS-blue.svg)
