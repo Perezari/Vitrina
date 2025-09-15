@@ -314,7 +314,7 @@ async function downloadPdf() {
 
             if (!supplier) return;
 
-            if (unitDetails.profileType === '424' && logo2) {
+            if (unitDetails.profileType === 'דגם424' && logo2) {
                 const pageHeight = pdf.internal.pageSize.getHeight(); // גובה הדף
                 const xPos = 5; // מרחק מהצד השמאלי
                 const yPos = pageHeight - 55; // 234 = גובה הלוגו השני, 10 = מרווח מהתחתית
