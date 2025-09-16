@@ -200,6 +200,8 @@ async function downloadPdf() {
         const pdf = new jsPDF(PDF_ORIENTATION, 'mm', PDF_SIZE);
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
+        const profileType = document.getElementById('profileType').selectedOptions[0].text;
+        const settings = ProfileConfig.getProfileSettings(profileType);
 
         // קריאת נתוני היחידה
         const unitDetails = {
@@ -268,33 +270,66 @@ async function downloadPdf() {
         let textY = marginForPrint + 10;
 
         function fixHebrew(text) {
-            return text.split('').reverse().join('');
+            if (!text) return '';
+
+            // זיהוי עברית
+            const hebrewRegex = /[\u0590-\u05FF]/;
+
+            if (hebrewRegex.test(text)) {
+                // אם יש עברית – נהפוך את כל המחרוזת
+                return text.split('').reverse().join('');
+            }
+
+            // אחרת אנגלית/מספרים – משאירים כמו שזה
+            return text;
         }
 
         function addFieldBox(label, value, width = 40, height = 10) {
             if (!value) return;
+
             pdf.setFont('Alef', 'normal');
             pdf.setFontSize(12);
             pdf.setTextColor(44, 62, 80);
-            pdf.setFillColor(245);
+
+            if (value.toLowerCase() === 'קידוחים לקבינאו 5 מ\"מ מקצה הדלת בקוטר 5 מ\"מ בחלק עליון ותחתון') {
+                pdf.setFillColor(255, 246, 168);
+            }
+            else {
+                pdf.setFillColor(245);
+            }
+
             pdf.setDrawColor(200);
             pdf.setLineWidth(0.3);
-            pdf.roundedRect(textX - width, textY, width, height, 3, 3, 'FD');
 
-            const fixedValue = (label === 'מספר יחידה'
-                || label === 'גוון פרופיל'
-                || label === 'מספר תוכנית'
-                || label === 'סוג זכוכית')
-                ? value
-                : fixHebrew(value);
-
-            pdf.text(fixedValue, textX - width / 2, textY + height / 2, { align: 'center', baseline: 'middle' });
-
+            const fixedValue = fixHebrew(value);
             const fixedLabel = fixHebrew(label);
+
+            // מחלק את הטקסט לשורות שמתאימות לרוחב
+            const lines = pdf.splitTextToSize(fixedValue, width).reverse(); // הופך את סדר השורות
+            const dynamicHeight = lines.length * 6 + 4; // 6 פיקסלים לכל שורה + פדינג עליון ותחתון
+
+            pdf.roundedRect(textX - width, textY, width, dynamicHeight, 3, 3, 'FD');
+
+            // ממרכז את הטקסט אנכית בתוך המסגרת
+            const textStartY = textY + dynamicHeight / 2 - ((lines.length - 1) * 3);
+
+            pdf.text(lines, textX - width / 2, textStartY, { align: 'center', baseline: 'middle' });
+
+            // כותרת מעל המסגרת
             pdf.setFontSize(12);
             pdf.text(fixedLabel, textX - width / 2, textY - 1.5, { align: 'center' });
 
-            textY += height + 7;
+            // לוגו אם נדרש
+            //if (value.toLowerCase() === 'בלורן') {
+            //    const logo = ProfileConfig.getLogoBySupplier("bluran");
+            //    pdf.addImage(logo, 'PNG', textX - width + 2, textY + 2, 6, 6);
+            //}
+            //if (value.toLowerCase() === 'נילסן') {
+            //    const logo = ProfileConfig.getLogoBySupplier("nilsen");
+            //    pdf.addImage(logo, 'PNG', textX - width + 2, textY + 2, 6, 6);
+            //}
+
+            textY += dynamicHeight + 7; // עדכון Y למיקום הבא
         }
 
         addFieldBox('הזמנה עבור', document.getElementById('Sapak').selectedOptions[0].text);
@@ -306,6 +341,7 @@ async function downloadPdf() {
         addFieldBox('סוג זכוכית', unitDetails.glassModel);
         addFieldBox('כיוון טקסטורת זכוכית', document.getElementById('glassTexture').selectedOptions[0].text);
         addFieldBox('הכנה עבור', unitDetails.prepFor);
+        addFieldBox('הערות נוספות', settings.CenterNotes);
 
         // ====== הוספת לוגו לפי ספק ======
         function addLogo(pdf) {
@@ -452,16 +488,6 @@ function draw() {
 									  fill="${settings.innerFrameFill}"
 									  stroke="${settings.innerFrameStroke}"
 									  stroke-width="${settings.innerFrameStrokeWidth}"/>`);
-
-    // טקסט במרכז
-    svg.insertAdjacentHTML('beforeend', `
-    <text
-    x="${padX + W / 2}"
-    y="${padY + H + 100}"
-    text-anchor="middle">
-    ${settings.CenterNotes}
-    </text>
-`);
 
     if (settings.hasGerong) {
         // מסגרת עם גרונג - כמו בדגם קואדרו לדוגמה
