@@ -3,20 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מחולל פרט לדופן ויטרינה פינתית</title>
+    <title>קונפיגורטור ויטרינות</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📐</text></svg>">
 </head>
 <body>
-    <h1>📐 מחולל פרט לדופן ויטרינה פינתית</h1>
-    <p class="subtitle">הזן מידות וקבל שרטוט טכני באופן אוטומטי - מידות במ"מ.</p>
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">📐</div>
+                <span>קונפיגורטור ויטרינות</span>
+            </a>
 
+            <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('active')">
+                ☰
+            </button>
+
+            <ul class="nav-links">
+                <li><a href="https://perezari.github.io/VitrinaHazit/" class="nav-link">דלתות ימין / שמאל</a></li>
+                <li><a href="https://perezari.github.io/VitrinaHK/" class="nav-link">HK TOP</a></li>
+                <li><a href="https://perezari.github.io/Vitrina/" class="nav-link active">דופן ויטרינה פינתית</a></li>
+            </ul>
+
+        </div>
+    </nav>
     <div class="wrap">
         <div class="card">
             <h2>הגדרת מידות 📐</h2>
-            <div class="file-upload">
-                <label for="excelFile" class="file-label">...</label>
-                <input type="file" id="excelFile" accept=".xls,.xlsx">
-                <span class="file-name">לא נבחר קובץ</span>
+            <div class="form-group">
+                <div class="file-upload">
+                    <label for="excelFile" class="file-label">
+                        📄 בחר קובץ Excel
+                    </label>
+                    <input type="file" id="excelFile" accept=".xls,.xlsx">
+                    <span class="file-name">לא נבחר קובץ</span>
+                </div>
             </div>
             <div class="row">
                 <div>
@@ -51,9 +72,9 @@
                     </select>
                 </div>
             </div>
-            <h2>פרטי יחידה 📝</h2>
+            <h2>פרטים 📝</h2>
             <div>
-                <label for="Sapak">הזמנה עבור</label>
+                <label for="Sapak">ספק הויטרינה</label>
                 <select id="Sapak">
                     <option value="bluran">בלורן</option>
                     <option value="nilsen">נילסן</option>
@@ -104,9 +125,13 @@
                     <input id="prepFor" type="text" value="קבינאו ונושאי מדף">
                 </div>
             </div>
-            <div class="buttons-container">
-                <button id="downloadBtn" type="button">הורד PDF 💾</button>
-                <button id="batchSaveBtn" type="button">PDF BATCH 💾</button>
+            <div class="button-group">
+                <button id="downloadBtn" class="btn-primary">
+                    💾 הורד PDF
+                </button>
+                <button id="batchSaveBtn" class="btn-secondary">
+                    📦 PDF Batch
+                </button>
             </div>
             <!--<div id="readout" class="readout-container" style="display:none;">
                 <h3>סיכום מידות 📏</h3>

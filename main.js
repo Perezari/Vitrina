@@ -89,6 +89,137 @@ function validateRequiredFields(fields) {
     return allValid;
 }
 
+function validateRequiredFields(fields) {
+    let allValid = true;
+    let firstEmptyField = null;
+    const inputs = [];
+
+    // מעבר ראשון – לבדוק מי ריק
+    for (let id of fields) {
+        const input = document.getElementById(id);
+        if (input) {
+            inputs.push(input);
+            if (input.value.trim() === '') {
+                allValid = false;
+                if (!firstEmptyField) {
+                    firstEmptyField = input;
+                }
+            }
+        }
+    }
+
+    // מעבר שני – צביעת שדות
+    for (let input of inputs) {
+        input.classList.remove('error', 'valid');
+        if (input.value.trim() === '') {
+            input.classList.add('error'); // שדות ריקים באדום
+        }
+    }
+
+    if (firstEmptyField) {
+        firstEmptyField.focus();
+        showCustomAlert('אנא מלא את השדה: ' + firstEmptyField.previousElementSibling.textContent, "error");
+    } else {
+        showCustomAlert("מייצר PDF - אנא המתן", "success");
+    }
+
+    return allValid;
+}
+
+// פונקציה להצגת הודעה מותאמת אישית
+function showCustomAlert(message, type = "error") {
+    const alertDiv = document.createElement('div');
+    alertDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    `;
+
+    if (type === "error") {
+        alertDiv.style.background = "linear-gradient(135deg, #ffcdd2 0%, #f8bbd9 100%)";
+        alertDiv.style.color = "#c62828";
+        alertDiv.style.boxShadow = "0 5px 15px rgba(198, 40, 40, 0.3)";
+        alertDiv.style.borderRight = "4px solid #c62828";
+    } else if (type === "success") {
+        alertDiv.style.background = "linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%)";
+        alertDiv.style.color = "#2e7d32";
+        alertDiv.style.boxShadow = "0 5px 15px rgba(46, 125, 50, 0.3)";
+        alertDiv.style.borderRight = "4px solid #2e7d32";
+    }
+
+    // ספינר רק אם זה success
+    if (type === "success") {
+        const spinner = document.createElement("div");
+        spinner.style.cssText = `
+                width: 20px;
+                height: 20px;
+                border: 3px solid rgba(27, 94, 32, 0.3);
+                border-top: 3px solid #1b5e20;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                flex-shrink: 0;
+        `;
+        alertDiv.appendChild(spinner);
+    }
+
+    // מוחק את ההודעה אחרי 3 שניות (רק בשגיאה)
+    if (type === "success") {
+        setTimeout(() => {
+            alertDiv.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // טקסט
+    const text = document.createElement("span");
+    text.textContent = message;
+    alertDiv.appendChild(text);
+
+    document.body.appendChild(alertDiv);
+
+    // מוחק את ההודעה אחרי 3 שניות (רק בשגיאה)
+    if (type === "error") {
+        setTimeout(() => {
+            alertDiv.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 300);
+        }, 3000);
+    }
+}
+
+// אנימציות CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+
 // Populates the profile dropdown based on the selected supplier
 function fillProfileOptions() {
     const selectedSapak = sapakSelect.value;
@@ -914,6 +1045,17 @@ excelFileInput.addEventListener('change', () => {
     } else {
         fileNameSpan.textContent = "לא נבחר קובץ";
     }
+});
+
+// Add loading state to buttons
+const buttons = document.querySelectorAll('button');
+buttons.forEach(button => {
+    button.addEventListener('click', function () {
+        this.classList.add('loading');
+        setTimeout(() => {
+            this.classList.remove('loading');
+        }, 2000);
+    });
 });
 
 // First draw
