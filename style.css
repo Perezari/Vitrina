@@ -75,7 +75,7 @@ p.subtitle {
 /* במסכים גדולים - מחשב */
 @media (min-width: 900px) {
     .card.drawing-card {
-        max-height: 80vh; /* לא לחרוג מגובה חלון */
+        max-height: 81vh; /* לא לחרוג מגובה חלון */
         overflow: hidden; /* שלא תהיה גלילה פנימית */
     }
 }
@@ -321,7 +321,7 @@ nav {
 }
 
 .nav-container {
-    max-width: 1400px;
+    max-width: none;
     margin: 0 auto;
     display: flex;
     align-items: center;

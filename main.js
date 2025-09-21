@@ -2,6 +2,18 @@ window.jsPDF = window.jspdf.jsPDF;
 function mm(v) { return Number.isFinite(v) ? v : 0; }
 
 // Variables
+const DIMENSION_LIMITS = {
+    frontW: {
+        min: 100,
+        max: 700,
+        name: "רוחב חזית"
+    },
+    cabH: {
+        min: 400,
+        max: 2500,
+        name: "גובה חזית"
+    },
+};
 const sapakSelect = document.getElementById("Sapak");
 const profileSelect = document.getElementById("profileType");
 const sideSelect = document.getElementById("sideSelect");
@@ -550,6 +562,9 @@ async function downloadPdf() {
 // based on user input and profile settings.
 // Also updates an HTML readout with the cabinet dimensions.
 function draw() {
+
+    if (!validateAllDimensions()) return;
+
     const frontW = mm(+document.getElementById('frontW').value);
     const cabH = mm(+document.getElementById('cabH').value);
     const shelves = Math.max(1, Math.floor(+document.getElementById('shelves').value));
@@ -567,14 +582,16 @@ function draw() {
     const padX = 500, padY = 50;
     const W = frontW * scale, H = cabH * scale;
     const sideSelect = document.getElementById('sideSelect').value;
+    const BOTTOM_MARGIN = H * 0.4;
+    const DIMENSIONS_SPACE = padX - 20;
 
     const svg = document.getElementById('svg');
     const overlay = document.querySelector('.svg-overlay');
     overlay && (overlay.style.display = 'none');
 
     // חישוב גודל ה-viewBox המלא כולל כל האלמנטים
-    const totalWidth = padX + W + 480; // מרחב נוסף למידות
-    const totalHeight = padY + H + 150; // מרחב נוסף למידות תחתונות
+    const totalWidth = padX + W + DIMENSIONS_SPACE; // מרחב נוסף למידות
+    const totalHeight = padY + H + BOTTOM_MARGIN; // מרחב נוסף למידות תחתונות
 
     // הגדרת viewBox שיאפשר התאמה אוטומטית
     svg.setAttribute('viewBox', `0 0 ${totalWidth} ${totalHeight}`);
@@ -836,8 +853,6 @@ function draw() {
 sapakSelect.addEventListener("change", fillProfileOptions);
 profileSelect.addEventListener("change", fillProfileOptions);
 sideSelect.addEventListener("change", fillProfileOptions);
-frontW.addEventListener("change", fillProfileOptions);
-cabH.addEventListener("change", fillProfileOptions);
 shelves.addEventListener("change", fillProfileOptions);
 CabineoLocation.addEventListener("change", fillProfileOptions);
 CabineoCount.addEventListener("change", fillProfileOptions);
@@ -1056,6 +1071,114 @@ buttons.forEach(button => {
             this.classList.remove('loading');
         }, 2000);
     });
+});
+
+// פונקציה לולידציה ותיקון ערך
+function validateAndCorrectValue(input, inputId) {
+    const value = input.value.trim();
+    if (value === '') {
+        // מסירת סימון שגיאה אם השדה ריק
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+        return;
+    }
+
+    if (!validateDimension(inputId, value)) {
+
+        // סימון חזותי של שגיאה
+        input.style.borderColor = '#e74c3c';
+        input.style.backgroundColor = '#fdf2f2';
+
+        setTimeout(() => {
+            input.style.borderColor = '';
+            input.style.backgroundColor = '';
+        }, 2000);
+
+        return;
+    }
+
+    // אם הערך תקין - מסירים סימון שגיאה
+    input.style.borderColor = '';
+    input.style.backgroundColor = '';
+    draw();
+}
+
+// פונקציה לוולידציה של מידה בודדת
+function validateDimension(inputId, value) {
+    const limits = DIMENSION_LIMITS[inputId];
+    if (!limits) return true;
+
+    const numValue = Number(value);
+
+    if (isNaN(numValue)) {
+        showCustomAlert(`${limits.name} חייב להיות מספר`, "error");
+        return false;
+    }
+
+    if (numValue < limits.min) {
+        showCustomAlert(`${limits.name} לא יכול להיות פחות מ-${limits.min}`, "error");
+        return false;
+    }
+
+    if (numValue > limits.max) {
+        showCustomAlert(`${limits.name} לא יכול להיות יותר מ-${limits.max}`, "error");
+        return false;
+    }
+
+    return true;
+}
+
+// פונקציה להוספת ולידציה לשדה קלט
+function addDimensionValidation(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const limits = DIMENSION_LIMITS[inputId];
+    if (limits) {
+        // הוספת attributes ל-HTML
+        input.setAttribute('min', limits.min);
+        input.setAttribute('max', limits.max);
+
+        // בדיקה כאשר המשתמש לוחץ Enter
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                validateAndCorrectValue(this, inputId);
+            }
+        });
+
+        // ולידציה כאשר משתמש יוצא מהשדה
+        input.addEventListener('blur', function () {
+            validateAndCorrectValue(this, inputId);
+        });
+    }
+}
+
+// הוספת ולידציה לכל השדות הרלוונטיים
+function initializeDimensionValidation() {
+    Object.keys(DIMENSION_LIMITS).forEach(inputId => {
+        addDimensionValidation(inputId);
+    });
+}
+
+// פונקציה לולידציה של כל המידות בבת אחת (לפני יצירת PDF)
+function validateAllDimensions() {
+    let allValid = true;
+
+    Object.keys(DIMENSION_LIMITS).forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input && input.value.trim() !== '') {
+            if (!validateDimension(inputId, input.value)) {
+                allValid = false;
+            }
+        }
+    });
+
+    return allValid;
+}
+
+// אתחול הולידציה כאשר הדף נטען
+document.addEventListener('DOMContentLoaded', function () {
+    initializeDimensionValidation();
 });
 
 // First draw
