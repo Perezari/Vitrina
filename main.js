@@ -969,6 +969,50 @@ excelFile.addEventListener("change", function (e) {
         if (unitNumInput.value) {
             searchUnit(unitNumInput.value);
         }
+
+        sapakSelect.disabled = true;
+        sapakSelect.title = "שדה זה נטען אוטומטית מהקובץ ולא ניתן לשינוי";
+
+        profileSelect.disabled = true;
+        profileSelect.title = "שדה זה נטען אוטומטית מהקובץ ולא ניתן לשינוי";
+
+        sideSelect.disabled = true;
+        sideSelect.title = "שדה זה נטען אוטומטית מהקובץ ולא ניתן לשינוי";
+
+        planNum.readOnly = true;
+        planNum.disabled = true;
+        planNum.style.backgroundColor = "#f8f9fb";
+        planNum.style.color = '#888888';
+        planNum.style.userSelect = 'none';
+        planNum.title = "שדה זה נטען אוטומטית מהקובץ ולא ניתן לשינוי";
+
+        glassModel.readOnly = true;
+        glassModel.disabled = true;
+        glassModel.style.backgroundColor = "#f8f9fb";
+        glassModel.style.color = '#888888';
+        glassModel.style.userSelect = 'none';
+        glassModel.title = "שדה זה נטען אוטומטית מהקובץ ולא ניתן לשינוי";
+
+        profileColor.readOnly = true;
+        profileColor.disabled = true;
+        profileColor.style.backgroundColor = "#f8f9fb";
+        profileColor.style.color = '#888888';
+        profileColor.style.userSelect = 'none';
+        profileColor.title = "שדה זה נטען אוטומטית מהקובץ ולא ניתן לשינוי";
+
+        frontW.readOnly = true;
+        frontW.disabled = true;
+        frontW.style.backgroundColor = "#f8f9fb";
+        frontW.style.color = '#888888';
+        frontW.style.userSelect = 'none';
+        frontW.title = "שדה זה נטען אוטומטית מהקובץ ולא ניתן לשינוי";
+
+        cabH.readOnly = true;
+        cabH.disabled = true;
+        cabH.style.backgroundColor = "#f8f9fb";
+        cabH.style.color = '#888888';
+        cabH.style.userSelect = 'none';
+        cabH.title = "שדה זה נטען אוטומטית מהקובץ ולא ניתן לשינוי";
     };
     reader.readAsArrayBuffer(file);
 });
