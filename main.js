@@ -874,7 +874,22 @@ excelFile.addEventListener("change", function (e) {
         const workbook = XLSX.read(data, { type: 'array' });
 
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        excelRows = XLSX.utils.sheet_to_json(sheet, { range: 6 });
+
+        // קודם נקרא את הכותרות (שורה 6 = index 6 -> השורה ה-7 בפועל)
+        const headers = XLSX.utils.sheet_to_json(sheet, {
+            range: 6,
+            header: 1
+        })[0]; // השורה הראשונה בטווח
+
+        // עכשיו נקרא את השורות החל מהשורה שאחריה (range: 7)
+        // ונכריח להשתמש בכותרות שקיבלנו
+        excelRows = XLSX.utils.sheet_to_json(sheet, {
+            range: 7,        // מתחיל מהשורה שאחרי הכותרות
+            header: headers, // שימוש בכותרות ידניות
+            defval: "",      // לא לאבד תאים ריקים
+            raw: true,
+            blankrows: true
+        });
 
         console.log("עמודות שהתקבלו:", Object.keys(excelRows[0]));
         console.log("דוגמה לשורה ראשונה:", excelRows[0]);
