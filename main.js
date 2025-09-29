@@ -30,11 +30,25 @@ const batchSaveBtn = document.getElementById("batchSaveBtn");
 batchSaveBtn.style.display = 'none';
 const excelFileInput = document.getElementById('excelFile');
 const fileNameSpan = document.querySelector('.file-name');
+const style = document.createElement('style');
+
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
 
 // Adds a small dot (circle) to the SVG at specified coordinates.
-// Sets default fill and stroke colors for visibility.
-// Ensures the stroke remains thin and sharp when scaling or printing.
-// Default radius is 2.2 units, but can be overridden.
 function addDimDot(svg, x, y, r = 2.2) {
     const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     c.setAttribute('cx', x);
@@ -50,9 +64,6 @@ function addDimDot(svg, x, y, r = 2.2) {
 }
 
 // Adds a rotated note box with text to the SVG.
-// Temporarily measures the text to size the box with padding.
-// Inserts a <g> element containing the <rect> and <text>, rotated around the specified coordinates.
-// Default rotation angle is 90 degrees.
 function addNoteRotated(svg, x, y, text, angle = 90) {
     // מחשבים BBox זמני כדי להתאים את הריבוע
     const tempText = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -79,28 +90,6 @@ function addNoteRotated(svg, x, y, text, angle = 90) {
 }
 
 // Validates that all required input fields are filled.
-// Shows an alert and highlights the first empty field.
-// Returns true if all fields have values, false otherwise.
-function validateRequiredFields(fields) {
-    let allValid = true;
-    for (let id of fields) {
-        const input = document.getElementById(id);
-        if (input) {
-            if (input.value.trim() === '') {
-                alert('אנא מלא את השדה: ' + input.previousElementSibling.textContent);
-                input.style.border = '2px solid red';
-                input.focus();
-                allValid = false;
-                break; // עוצר בלחיצה הראשונה
-            } else {
-                // אם השדה לא ריק – מחזיר את העיצוב הרגיל
-                input.style.border = '';
-            }
-        }
-    }
-    return allValid;
-}
-
 function validateRequiredFields(fields) {
     let allValid = true;
     let firstEmptyField = null;
@@ -138,7 +127,7 @@ function validateRequiredFields(fields) {
     return allValid;
 }
 
-// פונקציה להצגת הודעה מותאמת אישית
+// Custom alert function with styles and animations
 function showCustomAlert(message, type = "error") {
     const alertDiv = document.createElement('div');
     alertDiv.style.cssText = `
@@ -214,24 +203,6 @@ function showCustomAlert(message, type = "error") {
     }
 }
 
-// אנימציות CSS
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-`;
-document.head.appendChild(style);
-
 // Populates the profile dropdown based on the selected supplier
 function fillProfileOptions() {
     const selectedSapak = sapakSelect.value;
@@ -249,6 +220,94 @@ function fillProfileOptions() {
     draw();
 }
 fillProfileOptions();
+
+// Displays a user-friendly message when profile is not found
+function showProfileNotFoundMessage(materialType = null) {
+    const svg = document.getElementById('svg');
+    const overlay = document.querySelector('.svg-overlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+
+    const profileInfo = materialType ?
+        `<text x="0" y="35" 
+              font-size="15" 
+              text-anchor="middle" 
+              fill="#FF6F00" 
+              font-weight="600"
+              font-family="Arial, sans-serif">פרופיל: "${materialType}"</text>`
+        : '';
+
+    // Clear the SVG and add a styled message
+    svg.innerHTML = `
+        <defs>
+            <linearGradient id="warningGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#fff4e6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ffe0b2;stop-opacity:1" />
+            </linearGradient>
+            
+            <filter id="shadow">
+                <feDropShadow dx="0" dy="2" stdDeviation="8" flood-opacity="0.15"/>
+            </filter>
+            
+            <linearGradient id="iconGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#FFB74D;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#FF8A65;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+        
+        <g transform="translate(400, 200)">
+            <!-- Background card with shadow -->
+            <rect x="-220" y="-120" width="440" height="${materialType ? '260' : '220'}" 
+                  rx="20" fill="url(#warningGradient)" 
+                  stroke="#FFB74D" stroke-width="2"
+                  filter="url(#shadow)"/>
+                     
+            <!-- Warning icon with gradient background -->
+            <circle cx="0" cy="-55" r="32" fill="url(#iconGradient)" opacity="0.3"/>
+            <circle cx="0" cy="-55" r="28" fill="#fff" opacity="0.5"/>
+            
+            <!-- Warning icon -->
+            <circle cx="0" cy="-55" r="25" fill="#FFA726" opacity="0.2"/>
+            <text x="0" y="-53" 
+                  font-size="40" 
+                  text-anchor="middle" 
+                  dominant-baseline="middle"
+                  fill="#FF6F00" 
+                  font-weight="bold">⚠</text>
+            
+            <!-- Main message -->
+            <text x="0" y="5" 
+                  font-size="19" 
+                  text-anchor="middle" 
+                  fill="#1a1a1a" 
+                  font-weight="600"
+                  font-family="Arial, sans-serif">הפרופיל לא מוגדר בקונפיגורטור</text>
+            
+            ${profileInfo}
+            
+            <!-- Divider line -->
+            <line x1="-80" y1="${materialType ? '55' : '35'}" 
+                  x2="80" y2="${materialType ? '55' : '35'}" 
+                  stroke="#FFB74D" stroke-width="1" opacity="0.4"/>
+            
+            <!-- Sub messages with icons -->
+            <text x="5" y="${materialType ? '80' : '60'}" 
+                  font-size="14" 
+                  text-anchor="middle" 
+                  fill="#666"
+                  font-family="Arial, sans-serif">השרטוט לא יכול להיות מוצג ✕</text>              
+            <text x="5" y="${materialType ? '105' : '85'}" 
+                  font-size="14" 
+                  text-anchor="middle" 
+                  fill="#999"
+                  font-family="Arial, sans-serif">אנא בדוק את הגדרות הפרופיל ⚙</text>
+        </g>
+    `;
+
+    svg.setAttribute('viewBox', '0 0 800 400');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+}
 
 // Finds a unit by number and fills the form fields with its properties
 function searchUnit(unitNum) {
@@ -285,24 +344,70 @@ function searchUnit(unitNum) {
 
     sideSelect.value = doorSide;
 
+    // לוגיקה חדשה לזיהוי פרופיל וצבע
     if (row['סוג החומר']) {
-        const [color, type] = row['סוג החומר'].split('_');
-        document.getElementById('profileColor').value = color || '';
+        const materialType = String(row['סוג החומר']).trim();
 
-        let foundSupplier = null;
-        for (const supplier in ProfileConfig.SUPPLIERS_PROFILES_MAP) {
-            if (ProfileConfig.SUPPLIERS_PROFILES_MAP[supplier].includes(type)) {
-                foundSupplier = supplier;
+        // חיפוש הפרופיל בהגדרות
+        let foundProfileType = null;
+        let remainingText = materialType;
+
+        // חיפוש בכל סוגי הפרופילים בהגדרות
+        for (const profileType in ProfileConfig.PROFILE_SETTINGS) {
+            if (materialType.includes(profileType)) {
+                foundProfileType = profileType;
+                // הסרת סוג הפרופיל מהטקסט כדי לקבל את הצבע
+                remainingText = materialType.replace(profileType, '').replace(/^_+|_+$/g, ''); // הסרת _ בהתחלה וסוף
                 break;
             }
         }
 
-        if (foundSupplier) {
-            sapakSelect.value = foundSupplier;
-            fillProfileOptions();
-        }
+        if (foundProfileType) {
+            // הגדרת הצבע (מה שנשאר אחרי הסרת הפרופיל)
+            document.getElementById('profileColor').value = remainingText || '';
 
-        profileSelect.value = type || '';
+            // מציאת הספק המתאים לפרופיל
+            let foundSupplier = null;
+            for (const supplier in ProfileConfig.SUPPLIERS_PROFILES_MAP) {
+                if (ProfileConfig.SUPPLIERS_PROFILES_MAP[supplier].includes(foundProfileType)) {
+                    foundSupplier = supplier;
+                    break;
+                }
+            }
+
+            if (foundSupplier) {
+                sapakSelect.value = foundSupplier;
+                fillProfileOptions();
+            }
+
+            profileSelect.value = foundProfileType;
+        } else {
+            // אם לא נמצא פרופיל בהגדרות, נשתמש בלוגיקה הישנה כגיבוי
+            const parts = materialType.split('_');
+            if (parts.length >= 2) {
+                document.getElementById('profileColor').value = parts[0] || '';
+                const profileType = parts[1];
+
+                let foundSupplier = null;
+                for (const supplier in ProfileConfig.SUPPLIERS_PROFILES_MAP) {
+                    if (ProfileConfig.SUPPLIERS_PROFILES_MAP[supplier].includes(profileType)) {
+                        foundSupplier = supplier;
+                        break;
+                    }
+                }
+
+                if (foundSupplier) {
+                    sapakSelect.value = foundSupplier;
+                    fillProfileOptions();
+                }
+
+                profileSelect.value = profileType || '';
+            }
+
+            showProfileNotFoundMessage(materialType);
+            batchSaveBtn.disabled = true;
+            return;
+        }
     }
 
     document.getElementById('glassModel').value = glass;
@@ -323,20 +428,13 @@ function hideOverlayPending() {
     setTimeout(() => { overlay.style.display = 'none'; }, 3000);
 }
 
+// Initiates PDF generation for the specified unit number.
 function generatePDFForUnit(unitNumber) {
     draw();
     downloadPdf();
 }
 
 // Generates a PDF from the current SVG and unit details on the page.
-// Ensures Hebrew text uses the Alef font and applies all SVG styling and fixes.
-// Clones the SVG, applies computed styles, fixes Hebrew text, centers dimensions, replaces markers, and sizes note boxes.
-// Fits the SVG into the PDF page with proper scaling and margins.
-// Adds unit detail fields as labeled boxes alongside the SVG.
-// Adds supplier logos (PNG or SVG) to the PDF.
-// Validates required fields before saving.
-// Saves the PDF with a filename based on plan number, unit number, profile type, and side selection.
-// Catches and reports errors during the PDF generation process.
 async function downloadPdf() {
     try {
         const { jsPDF } = window.jspdf;
@@ -558,9 +656,6 @@ async function downloadPdf() {
 }
 
 // Draws a cabinet/front panel diagram in an SVG element.
-// Includes frames, shelves, drill holes, dimensions, and rotated notes
-// based on user input and profile settings.
-// Also updates an HTML readout with the cabinet dimensions.
 function draw() {
 
     if (!validateAllDimensions()) return;
@@ -856,6 +951,8 @@ sideSelect.addEventListener("change", fillProfileOptions);
 shelves.addEventListener("change", fillProfileOptions);
 CabineoLocation.addEventListener("change", fillProfileOptions);
 CabineoCount.addEventListener("change", fillProfileOptions);
+frontW.addEventListener("change", fillProfileOptions);
+cabH.addEventListener("change", fillProfileOptions);
 
 // Load and process Excel file
 excelFile.addEventListener("change", function (e) {
