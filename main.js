@@ -970,23 +970,38 @@ excelFile.addEventListener("change", function (e) {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
 
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        workbook.SheetNames.forEach((sheetName) => {
+            const sheet = workbook.Sheets[sheetName];
 
-        // קודם נקרא את הכותרות (שורה 6 = index 6 -> השורה ה-7 בפועל)
-        const headers = XLSX.utils.sheet_to_json(sheet, {
-            range: 6,
-            header: 1
-        })[0]; // השורה הראשונה בטווח
+            // קריאת הכותרות (שורה 6 = השורה ה-7 בפועל)
+            const headers = XLSX.utils.sheet_to_json(sheet, {
+                range: 6,
+                header: 1
+            })[0];
 
-        // עכשיו נקרא את השורות החל מהשורה שאחריה (range: 7)
-        // ונכריח להשתמש בכותרות שקיבלנו
-        excelRows = XLSX.utils.sheet_to_json(sheet, {
-            range: 7,        // מתחיל מהשורה שאחרי הכותרות
-            header: headers, // שימוש בכותרות ידניות
-            defval: "",      // לא לאבד תאים ריקים
-            raw: true,
-            blankrows: true
+            if (!headers) return; // אם הגיליון ריק, דלג
+
+            // קריאת הנתונים מהשורה הבאה
+            const rows = XLSX.utils.sheet_to_json(sheet, {
+                range: 7,
+                header: headers,
+                defval: "",
+                raw: true,
+                blankrows: true
+            });
+
+            // הוספת שדה עזר עם שם הגיליון (לא חובה, אבל עוזר)
+            rows.forEach(r => r.__SheetName = sheetName);
+
+            // ממזגים את כל הגיליונות למערך אחד
+            excelRows.push(...rows);
         });
+
+        // ✅ אם לא נמצאו נתונים כלל
+        if (excelRows.length === 0) {
+            alert("לא נמצאו נתונים באף גיליון בקובץ.");
+            return;
+        }
 
         console.log("עמודות שהתקבלו:", Object.keys(excelRows[0]));
         console.log("דוגמה לשורה ראשונה:", excelRows[0]);
