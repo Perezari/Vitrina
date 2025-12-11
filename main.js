@@ -338,7 +338,7 @@ function searchUnit(unitNum) {
     if (!doorSide && unitsMeta[unitNum]?.doorSide) {
         doorSide = unitsMeta[unitNum].doorSide;
     }
-    if (glass === 'NO_ZIP' && unitsMeta[unitNum]?.glass) {
+    if (unitsMeta[unitNum]?.glass) {
         glass = unitsMeta[unitNum].glass;
     }
 
