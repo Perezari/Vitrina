@@ -1,172 +1,414 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he" dir="rtl" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>קונפיגורטור ויטרינות</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📐</text></svg>">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1117">
+  <title>קונפיגורטור ויטרינות · דופן ויטרינה פינתית</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='3' width='24' height='26' rx='2' fill='none' stroke='%23e8a825' stroke-width='2.5'/%3E%3Cline x1='16' y1='3' x2='16' y2='29' stroke='%23e8a825' stroke-width='2.5'/%3E%3C/svg%3E">
 </head>
 <body>
-    <nav>
-        <div class="nav-container">
-            <a href="#" class="logo">
-                <div class="logo-icon">📐</div>
-                <span>קונפיגורטור ויטרינות</span>
-            </a>
 
-            <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('active')">
-                ☰
+  <!-- =================== Top navigation =================== -->
+  <nav class="topnav" aria-label="תפריט ראשי">
+    <div class="topnav-inner">
+      <!-- Brand (right side in RTL) -->
+      <a href="#" class="brand-link" aria-label="אביבי מטבחים — דף הבית">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><use href="#i-brand"/></svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">קונפיגורטור ויטרינות</span>
+          <span class="brand-sub">דופן ויטרינה פינתית</span>
+        </span>
+      </a>
+
+      <!-- Tool switcher -->
+      <ul class="tool-tabs" id="toolTabs" role="tablist" aria-label="כלי קונפיגורציה">
+        <li role="presentation">
+          <a class="tool-tab" href="https://perezari.github.io/VitrinaHazit/">
+            <span>דלתות ימין / שמאל</span>
+          </a>
+        </li>
+        <li role="presentation">
+          <a class="tool-tab is-active" aria-current="page" href="https://perezari.github.io/Vitrina/">
+            <span>דופן ויטרינה פינתית</span>
+          </a>
+        </li>
+        <li role="presentation">
+          <a class="tool-tab" href="https://perezari.github.io/VitrinaHK/">
+            <span>HK TOP</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Utilities (left side in RTL) -->
+      <div class="topnav-utils">
+        <button class="icon-btn" id="themeToggle" aria-label="החלף ערכת נושא" title="החלף ערכת נושא" type="button">
+          <svg class="icon-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+          <svg class="icon-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+        </button>
+        <button class="icon-btn" id="helpBtn" aria-label="מדריך שימוש" title="מדריך שימוש" type="button">
+          <svg aria-hidden="true"><use href="#i-help"/></svg>
+        </button>
+        <button class="icon-btn nav-toggle" id="navToggle" aria-label="פתח תפריט" aria-expanded="false" type="button">
+          <svg aria-hidden="true"><use href="#i-menu"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =================== Main layout =================== -->
+  <main class="wrap">
+
+    <!-- Form panel -->
+    <aside class="form-panel" aria-label="הגדרת דופן ויטרינה פינתית">
+
+      <!-- Section 01 · Measurements -->
+      <section class="section" data-section="measurements">
+        <header class="section-header">
+          <span class="section-num">01</span>
+          <h2 class="section-title">מידות</h2>
+          <button class="section-toggle" aria-label="קפל חלק" aria-expanded="true" type="button">
+            <svg aria-hidden="true"><use href="#i-chevron"/></svg>
+          </button>
+        </header>
+        <div class="section-body">
+          <div class="row">
+            <div class="field">
+              <label for="frontW">רוחב חזית</label>
+              <div class="stepper">
+                <button type="button" class="stepper-btn stepper-inc" data-step="up" aria-label="הגדל">+</button>
+                <div class="stepper-field">
+                  <input id="frontW" type="number" value="400" min="100" class="input-stepper input-num">
+                  <span class="input-suffix">mm</span>
+                </div>
+                <button type="button" class="stepper-btn stepper-dec" data-step="down" aria-label="הקטן">−</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="cabH">גובה חזית</label>
+              <div class="stepper">
+                <button type="button" class="stepper-btn stepper-inc" data-step="up" aria-label="הגדל">+</button>
+                <div class="stepper-field">
+                  <input id="cabH" type="number" value="1920" min="500" class="input-stepper input-num">
+                  <span class="input-suffix">mm</span>
+                </div>
+                <button type="button" class="stepper-btn stepper-dec" data-step="down" aria-label="הקטן">−</button>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="shelves">מספר מדפים</label>
+              <div class="stepper">
+                <button type="button" class="stepper-btn stepper-inc" data-step="up" aria-label="הגדל">+</button>
+                <div class="stepper-field">
+                  <input id="shelves" type="number" value="4" min="1" class="input-stepper input-num">
+                </div>
+                <button type="button" class="stepper-btn stepper-dec" data-step="down" aria-label="הקטן">−</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="rEdge">קצה מחבר קבינאו</label>
+              <div class="stepper">
+                <button type="button" class="stepper-btn stepper-inc" data-step="up" aria-label="הגדל">+</button>
+                <div class="stepper-field">
+                  <input id="rEdge" type="number" value="160" min="1" class="input-stepper input-num">
+                  <span class="input-suffix">mm</span>
+                </div>
+                <button type="button" class="stepper-btn stepper-dec" data-step="down" aria-label="הקטן">−</button>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="rMidCount">כמות קבינאו</label>
+              <div class="stepper">
+                <button type="button" class="stepper-btn stepper-inc" data-step="up" aria-label="הגדל">+</button>
+                <div class="stepper-field">
+                  <input id="rMidCount" type="number" value="5" min="1" class="input-stepper input-num">
+                </div>
+                <button type="button" class="stepper-btn stepper-dec" data-step="down" aria-label="הקטן">−</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="sideSelect">כיוון פתיחה</label>
+              <select id="sideSelect" class="input">
+                <option value="right" selected>שמאל</option>
+                <option value="left">ימין</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 02 · Order details -->
+      <section class="section" data-section="details">
+        <header class="section-header">
+          <span class="section-num">02</span>
+          <h2 class="section-title">פרטי הזמנה</h2>
+          <button class="section-toggle" aria-label="קפל חלק" aria-expanded="true" type="button">
+            <svg aria-hidden="true"><use href="#i-chevron"/></svg>
+          </button>
+        </header>
+        <div class="section-body">
+          <div class="field">
+            <label for="Sapak">ספק הויטרינה</label>
+            <div class="select-with-preview">
+              <select id="Sapak" class="input">
+                <option value="bluran">בלורן</option>
+                <option value="nilsen">נילסן</option>
+              </select>
+              <div class="supplier-preview" id="supplierPreview" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="planNum">מספר תוכנית</label>
+              <input id="planNum" type="text" placeholder="1024" class="input input-mono">
+            </div>
+            <div class="field">
+              <label for="unitNum">מספר יחידה</label>
+              <input id="unitNum" type="text" placeholder="07" class="input input-mono">
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="partName">שם מפרק</label>
+              <input id="partName" type="text" placeholder="פרץ ארי" class="input">
+            </div>
+            <div class="field">
+              <label for="profileType">סוג פרופיל</label>
+              <select id="profileType" class="input"></select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="profileColor">גוון פרופיל</label>
+              <input id="profileColor" type="text" placeholder="G05" class="input input-mono">
+            </div>
+            <div class="field">
+              <label for="glassModel">דגם זכוכית</label>
+              <input id="glassModel" type="text" placeholder="BL-103" class="input input-mono">
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="glassTexture">טקסטורת זכוכית</label>
+              <select id="glassTexture" class="input">
+                <option value="none">ללא</option>
+                <option value="vertical">לגובה</option>
+                <option value="horizontal">לרוחב</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="prepFor">הכנה עבור</label>
+              <input id="prepFor" type="text" value="קבינאו ונושאי מדף" class="input">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 03 · Export -->
+      <section class="section" data-section="export">
+        <header class="section-header">
+          <span class="section-num">03</span>
+          <h2 class="section-title">ייצוא</h2>
+          <button class="section-toggle" aria-label="קפל חלק" aria-expanded="true" type="button">
+            <svg aria-hidden="true"><use href="#i-chevron"/></svg>
+          </button>
+        </header>
+        <div class="section-body">
+          <label class="dropzone" id="dropzone" for="excelFile">
+            <span class="dropzone-icon" aria-hidden="true">
+              <svg><use href="#i-upload"/></svg>
+            </span>
+            <span class="dropzone-primary">טען Excel לעיבוד Batch</span>
+            <span class="dropzone-sub file-name">לא נבחר קובץ</span>
+            <input type="file" id="excelFile" accept=".xls,.xlsx" class="visually-hidden">
+          </label>
+
+          <div class="action-group">
+            <button id="downloadBtn" class="btn btn-primary" type="button">
+              <svg aria-hidden="true"><use href="#i-download"/></svg>
+              <span>הורד PDF</span>
             </button>
+            <button id="batchSaveBtn" class="btn btn-secondary" type="button">
+              <svg aria-hidden="true"><use href="#i-package"/></svg>
+              <span>PDF Batch</span>
+            </button>
+          </div>
+        </div>
+      </section>
 
-            <ul class="nav-links">
-                <li><a href="https://perezari.github.io/VitrinaHazit/" class="nav-link">דלתות ימין / שמאל</a></li>
-                <li><a href="https://perezari.github.io/Vitrina/" class="nav-link active">דופן ויטרינה פינתית</a></li>
-                <li><a href="https://perezari.github.io/VitrinaHK/" class="nav-link">HK TOP</a></li>
-            </ul>
+    </aside>
 
+    <!-- Canvas panel (the drawing stage) -->
+    <section class="canvas-panel" aria-label="שרטוט דופן ויטרינה פינתית">
+      <div class="canvas-stage" id="canvasStage">
+        <!-- Blueprint grid background -->
+        <div class="canvas-grid" aria-hidden="true"></div>
+
+        <!-- Corner meta badges -->
+        <div class="badge badge-tr" aria-hidden="true">
+          <span>PLAN</span>
+          <span class="badge-mono" id="badgePlan">—</span>
+          <span class="badge-sep">·</span>
+          <span>UNIT</span>
+          <span class="badge-mono" id="badgeUnit">—</span>
         </div>
-    </nav>
-    <div class="wrap">
-        <div class="card">
-            <h2>הגדרת מידות 📐</h2>
-            <div class="form-group">
-                <div class="file-upload">
-                    <label for="excelFile" class="file-label">
-                        📄 בחר קובץ Excel
-                    </label>
-                    <input type="file" id="excelFile" accept=".xls,.xlsx">
-                    <span class="file-name">לא נבחר קובץ</span>
-                </div>
-            </div>
-            <div class="row">
-                <div>
-                    <label for="frontW">רוחב חזית</label>
-                    <input id="frontW" type="number" value="400" min="100">
-                </div>
-                <div>
-                    <label for="cabH">גובה חזית</label>
-                    <input id="cabH" type="number" value="1920" min="500">
-                </div>
-            </div>
-            <div class="row">
-                <div>
-                    <label for="shelves">מספר מדפים</label>
-                    <input id="shelves" type="number" value="4" min="1">
-                </div>
-                <div>
-                    <label for="rEdge">קצה מחבר קבינאו</label>
-                    <input id="rEdge" type="number" value="160" min="1">
-                </div>
-            </div>
-            <div class="row">
-                <div>
-                    <label for="rMidCount">כמות קבינאו</label>
-                    <input id="rMidCount" type="number" value="5" min="1">
-                </div>
-                <div>
-                    <label for="sideSelect">כיוון פתיחת דלת ויטרינה</label>
-                    <select id="sideSelect">
-                        <option value="right" selected>שמאל</option>
-                        <option value="left">ימין</option>
-                    </select>
-                </div>
-            </div>
-            <h2>פרטים 📝</h2>
-            <div>
-                <label for="Sapak">ספק הויטרינה</label>
-                <select id="Sapak">
-                    <option value="bluran">בלורן</option>
-                    <option value="nilsen">נילסן</option>
-                </select>
-            </div>
-            <div class="row">
-                <div>
-                    <label for="planNum">מספר תוכנית</label>
-                    <input id="planNum" type="text" placeholder="מספר תוכנית">
-                </div>
-                <div>
-                    <label for="unitNum">מספר יחידה</label>
-                    <input id="unitNum" type="text" placeholder="מספר יחידה">
-                </div>
-            </div>
-            <div class="row">
-                <div>
-                    <label for="partName">שם מפרק</label>
-                    <input id="partName" type="text" placeholder="פרץ ארי">
-                </div>
-                <div>
-                    <label for="profileType">סוג פרופיל</label>
-                    <select id="profileType">
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <div>
-                    <label for="profileColor">גוון פרופיל</label>
-                    <input id="profileColor" type="text" placeholder="לדוגמה: G05">
-                </div>
-                <div>
-                    <label for="glassModel">דגם זכוכית</label>
-                    <input id="glassModel" type="text" placeholder="לדוגמה: BL-103">
-                </div>
-            </div>
-            <div class="row">
-                <div>
-                    <label for="glassTexture">כיוון טקסטורת זכוכית</label>
-                    <select id="glassTexture">
-                        <option value="none">ללא</option>
-                        <option value="vertical">לגובה</option>
-                        <option value="horizontal">לרוחב</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="prepFor">כולל הכנה עבור</label>
-                    <input id="prepFor" type="text" value="קבינאו ונושאי מדף">
-                </div>
-            </div>
-            <div class="button-group">
-                <button id="downloadBtn" class="btn-primary">
-                    💾 הורד PDF
-                </button>
-                <button id="batchSaveBtn" class="btn-secondary">
-                    📦 PDF Batch
-                </button>
-            </div>
-            <!--<div id="readout" class="readout-container" style="display:none;">
-                <h3>סיכום מידות 📏</h3>
-                <div id="readout-content"></div>
-            </div>-->
+        <div class="badge badge-tl" aria-hidden="true">
+          <span id="badgeSupplier">—</span>
+          <span class="badge-sep">·</span>
+          <span id="badgeProfile">—</span>
+          <span class="badge-sep">·</span>
+          <span class="badge-mono" id="badgeColor">—</span>
+          <span class="badge-sep">·</span>
+          <span class="badge-mono" id="badgeGlass">—</span>
         </div>
-        <div class="card drawing-card">
-            <svg id="svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMin slice"></svg>
-            <div class="svg-overlay">השרטוט יופיע כאן...</div>
+        <div class="badge badge-br" aria-hidden="true">
+          <span id="badgeDate">—</span>
         </div>
+        <div class="badge badge-bl" aria-hidden="true">
+          <span>SCALE</span>
+          <span class="badge-mono" id="badgeScale">AUTO</span>
+        </div>
+
+        <!-- The SVG (main.js renders into this) -->
+        <svg id="svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMin slice"></svg>
+
+        <!-- Empty-state overlay (fades out once a drawing is rendered) -->
+        <div class="svg-overlay" id="emptyState">
+          <div class="empty-skeleton" aria-hidden="true">
+            <div class="empty-frame"></div>
+          </div>
+          <p class="empty-primary">מזין מידות להתחלה</p>
+          <p class="empty-sub">השרטוט יופיע כאן אוטומטית</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =================== Loading overlay =================== -->
+  <!-- display:none is inline so main.js's existing show/hide logic keeps working -->
+  <div id="overlay" role="dialog" aria-modal="true" aria-labelledby="overlayText" style="display:none;">
+    <div class="overlay-card">
+      <div class="overlay-spinner" aria-hidden="true">
+        <svg viewBox="0 0 60 80" class="vitrina-spinner">
+          <rect class="v-frame" x="2" y="2" width="56" height="76" rx="2"/>
+          <rect class="v-door v-door-1" x="6" y="6" width="22" height="68" rx="1"/>
+          <rect class="v-door v-door-2" x="32" y="6" width="22" height="68" rx="1"/>
+          <line class="v-hinge" x1="30" y1="8" x2="30" y2="72"/>
+        </svg>
+      </div>
+      <p class="overlay-text" id="overlayText">שומר קבצים…</p>
+      <div class="overlay-progress" id="overlayProgress" hidden>
+        <div class="overlay-progress-bar" id="overlayProgressBar"></div>
+      </div>
+      <!-- Legacy element retained for main.js backward compat -->
+      <span id="overlayAnimation" class="visually-hidden">טוען</span>
     </div>
-    <div id="overlay" style="
-        display:none;
-        position:fixed;
-        top:0;
-        left:0;
-        width:100%;
-        height:100%;
-        background:rgba(0,0,0,0.5);
-        z-index:9999;
-        justify-content:center;
-        align-items:center;
-        flex-direction:column;
-        color:white;
-        font-size:24px;
-        font-weight:bold;">
-        <div id="overlayText">שומר קבצים...</div>
-        <div id="overlayAnimation" style="margin-top:20px;">⏳</div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.5.0/dist/svg2pdf.umd.min.js"></script>
-    <script src="Alef-normal.js"></script>
-    <script src="profiles.js"></script>
-    <script src="pdf.js"></script>
-    <script src="main.js"></script>
+  </div>
+
+  <!-- =================== SVG icon library (sprite) =================== -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <defs>
+      <!-- Tool tabs: visual schemas of each product -->
+      <symbol id="i-doors" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.25" y="4" width="7.5" height="16" rx="1"/>
+          <rect x="13.25" y="4" width="7.5" height="16" rx="1"/>
+          <circle cx="9" cy="12" r=".7" fill="currentColor" stroke="none"/>
+          <circle cx="15" cy="12" r=".7" fill="currentColor" stroke="none"/>
+        </g>
+      </symbol>
+      <symbol id="i-corner" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4H14V14H20"/>
+          <path opacity=".4" d="M4 4V20H20"/>
+        </g>
+      </symbol>
+      <symbol id="i-hktop" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 6h20"/>
+          <rect x="4" y="9" width="16" height="11" rx="1"/>
+          <path d="M10 14h4"/>
+        </g>
+      </symbol>
+
+      <!-- Utilities -->
+      <symbol id="i-sun" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </g>
+      </symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24">
+        <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+              d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </symbol>
+      <symbol id="i-help" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5"/>
+          <circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/>
+        </g>
+      </symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24">
+        <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+              d="M4 7h16M4 12h16M4 17h16"/>
+      </symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24">
+        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              d="M6 9l6 6 6-6"/>
+      </symbol>
+
+      <!-- Actions -->
+      <symbol id="i-upload" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <path d="M17 8l-5-5-5 5"/>
+          <path d="M12 3v12"/>
+        </g>
+      </symbol>
+      <symbol id="i-download" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <path d="M7 10l5 5 5-5"/>
+          <path d="M12 15V3"/>
+        </g>
+      </symbol>
+      <symbol id="i-package" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16.5 9.4 7.55 4.24"/>
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <path d="M3.27 6.96 12 12.01l8.73-5.05"/>
+          <path d="M12 22.08V12"/>
+        </g>
+      </symbol>
+
+      <!-- Brand mark: a stylized cabinet frame -->
+      <symbol id="i-brand" viewBox="0 0 32 32">
+        <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" stroke-linejoin="miter">
+          <rect x="4" y="3" width="24" height="26" rx="1.5"/>
+          <line x1="16" y1="4.5" x2="16" y2="27.5"/>
+          <circle cx="12.5" cy="16" r="1" fill="currentColor" stroke="none"/>
+          <circle cx="19.5" cy="16" r="1" fill="currentColor" stroke="none"/>
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- =================== Scripts =================== -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.5.0/dist/svg2pdf.umd.min.js"></script>
+  <script src="Alef-normal.js"></script>
+  <script src="profiles.js"></script>
+  <script src="pdf.js"></script>
+  <script src="main.js"></script>
+  <script src="ui-enhancements.js"></script>
 </body>
 </html>
