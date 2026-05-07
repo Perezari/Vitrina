@@ -187,6 +187,30 @@
     });
   }
 
+  // Click any badge value to copy it to the clipboard. Skip em-dashes.
+  function showCopiedTooltip(host) {
+    const tip = document.createElement('span');
+    tip.className = 'copied-tooltip';
+    tip.textContent = 'הועתק';
+    host.appendChild(tip);
+    requestAnimationFrame(() => tip.classList.add('show'));
+    setTimeout(() => {
+      tip.classList.remove('show');
+      setTimeout(() => tip.remove(), 200);
+    }, 900);
+  }
+  [badgePlan, badgeUnit, badgeSupplier, badgeProfile, badgeColor, badgeGlass].forEach((el) => {
+    if (!el) return;
+    el.classList.add('badge-copyable');
+    el.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const text = (el.textContent || '').trim();
+      if (!text || text === '—') return;
+      try { await navigator.clipboard.writeText(text); } catch (_) {}
+      showCopiedTooltip(el);
+    });
+  });
+
   /* ---------- 6) Supplier logo preview ------------------------------------ */
   // profiles.js exposes SUPPLIER_LOGOS somewhere on the global scope.
   // We try a few locations defensively so we don't crash if the shape differs.
@@ -352,16 +376,80 @@
 
     const valueSpan = trigger.querySelector('.custom-select-value');
 
+    // Generate a tiny SVG thumbnail of the profile so the user can see
+    // padding/miter style at a glance. Pulls geometry from PROFILE_SETTINGS.
+    function profileThumb(name) {
+      const PS = window.ProfileConfig && window.ProfileConfig.PROFILE_SETTINGS;
+      const p = PS && PS[name];
+      if (!p) return '';
+      const W = 22, H = 16;
+      // Approximate padding in user units (max 6 px / max 4 px) so all
+      // profiles render at a consistent scale.
+      const padX = Math.min(6, Math.max(2, p.padSides / 8));
+      const padY = Math.min(4, Math.max(2, p.padTopBot / 8));
+      const ix = padX, iy = padY, iw = W - 2 * padX, ih = H - 2 * padY;
+      const miters = p.hasGerong ? `
+        <line x1="0" y1="0" x2="${ix}" y2="${iy}" />
+        <line x1="${W}" y1="0" x2="${W - ix}" y2="${iy}" />
+        <line x1="0" y1="${H}" x2="${ix}" y2="${H - iy}" />
+        <line x1="${W}" y1="${H}" x2="${W - ix}" y2="${H - iy}" />` : '';
+      return `<svg class="profile-thumb" viewBox="0 0 ${W} ${H}" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" />
+        <rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" />
+        ${miters}
+      </svg>`;
+    }
+    const isProfileSelect = sel.id === 'profileType';
+    const isUnitSelect    = sel.id === 'unitNum';
+
+    // Read which units have already been exported for the current plan.
+    // Mirrors main.js's getExportedUnitsForPlan; we duplicate the lookup
+    // so this layer doesn't depend on a global from main.js.
+    function getExportedSet() {
+      const planNum = (document.getElementById('planNum') || {}).value;
+      if (!planNum) return new Set();
+      try {
+        const raw = localStorage.getItem('vitrina-exported-' + planNum);
+        return new Set(raw ? JSON.parse(raw) : []);
+      } catch (_) { return new Set(); }
+    }
+
     // (Re)build the menu from the current state of the native select
     function render() {
       menu.innerHTML = '';
       const curVal = sel.value;
+      const exported = isUnitSelect ? getExportedSet() : null;
       Array.from(sel.options).forEach((opt) => {
         const li = document.createElement('li');
         li.className = 'custom-select-option';
         li.setAttribute('role', 'option');
         li.dataset.value = opt.value;
-        li.textContent = opt.textContent;
+        if (isProfileSelect) {
+          li.innerHTML = profileThumb(opt.textContent.trim()) +
+                         `<span class="custom-select-option-label">${opt.textContent}</span>`;
+        } else if (isUnitSelect) {
+          const v = String(opt.value).trim();
+          li.dataset.unitNum = v;
+          li.classList.add('unit-option');
+          // Match VitrinaHazit/HK structure exactly: native <input type="radio">
+          // sits beside a label-styled span. No CSS-generated indicator —
+          // the browser draws the radio so it looks identical to the
+          // hand-built dropdown in main.js.
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'unitNumDropdown';
+          radio.tabIndex = -1;
+          radio.checked = (opt.value === curVal);
+          const labelText = document.createElement('span');
+          labelText.className = 'unit-label';
+          labelText.dataset.unitNum = v;
+          if (exported.has(v)) labelText.classList.add('is-exported');
+          labelText.textContent = `יחידה ${opt.textContent}`;
+          li.appendChild(radio);
+          li.appendChild(labelText);
+        } else {
+          li.textContent = opt.textContent;
+        }
         if (opt.value === curVal) li.setAttribute('aria-selected', 'true');
         li.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -439,6 +527,27 @@
   // Enhance all selects inside the form panel
   document.querySelectorAll('.form-panel select').forEach(enhanceSelect);
 
+  // Watch for late-added selects (e.g. DofenVitrinaPinatit's main.js replaces
+  // the unitNum text input with a native <select> only after Excel is loaded)
+  // and enhance them too.
+  const formPanelForLateSelects = document.querySelector('.form-panel');
+  if (formPanelForLateSelects) {
+    new MutationObserver((muts) => {
+      for (const m of muts) {
+        for (const node of m.addedNodes) {
+          if (node.nodeType !== 1) continue;
+          if (node.tagName === 'SELECT' && node.dataset.enhanced !== '1') {
+            enhanceSelect(node);
+          } else {
+            node.querySelectorAll && node.querySelectorAll('select').forEach((sel) => {
+              if (sel.dataset.enhanced !== '1') enhanceSelect(sel);
+            });
+          }
+        }
+      }
+    }).observe(formPanelForLateSelects, { childList: true, subtree: true });
+  }
+
   // Force-refresh every enhanced select's trigger label. Used after Excel
   // load: main.js sets sideSelect/Sapak values via .value = X (no event
   // fires), so the trigger label otherwise stays stale.
@@ -451,6 +560,22 @@
   if (excelInputForSelects) {
     excelInputForSelects.addEventListener('change', () => {
       [50, 300, 800, 1500].forEach((d) => setTimeout(rerenderAllCustomSelects, d));
+    });
+  }
+
+  // main.js dispatches this on every successful PDF export so we can refresh
+  // the unit-select menu and show the ✓ on the just-exported unit.
+  window.addEventListener('vitrina:units-exported-changed', rerenderAllCustomSelects);
+
+  // Any change inside the form panel can trigger main.js to set OTHER
+  // selects' values programmatically (e.g. picking a unit fires
+  // searchUnit() which sets sideSelect.value, which doesn't fire
+  // change). Defer a re-render so those cascading programmatic
+  // changes are reflected in the trigger labels.
+  const formPanelForRerender = document.querySelector('.form-panel');
+  if (formPanelForRerender) {
+    formPanelForRerender.addEventListener('change', () => {
+      setTimeout(rerenderAllCustomSelects, 0);
     });
   }
 
@@ -536,6 +661,5 @@
     // Initial pass
     scheduleTighten();
   }
-
 
 })();

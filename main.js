@@ -648,11 +648,36 @@ async function downloadPdf() {
         }
 
         savePdf();
+        markUnitExported(unitDetails.planNum, unitDetails.unitNum);
 
     } catch (err) {
         console.error('downloadPdf error:', err);
         alert('אירעה שגיאה בייצוא PDF. בדוק את הקונסול לפרטים.');
     }
+}
+
+// Persist exported (planNum, unitNum) tuples in localStorage so future
+// dropdowns/UIs can mark previously-exported units with a checkmark.
+function getExportedUnitsForPlan(planNum) {
+    if (!planNum) return new Set();
+    try {
+        const raw = localStorage.getItem('vitrina-exported-' + planNum);
+        return new Set(raw ? JSON.parse(raw) : []);
+    } catch (_) { return new Set(); }
+}
+function markUnitExported(planNum, unitNum) {
+    if (!planNum || !unitNum) return;
+    const set = getExportedUnitsForPlan(planNum);
+    set.add(String(unitNum).trim());
+    try {
+        localStorage.setItem('vitrina-exported-' + planNum, JSON.stringify([...set]));
+    } catch (_) {}
+    document.querySelectorAll(`[data-unit-num="${String(unitNum).trim()}"]`).forEach((el) => {
+        el.classList.add('is-exported');
+    });
+    window.dispatchEvent(new CustomEvent('vitrina:units-exported-changed', {
+        detail: { planNum, unitNum: String(unitNum).trim() }
+    }));
 }
 
 // Draws a cabinet/front panel diagram in an SVG element.
@@ -1244,58 +1269,66 @@ buttons.forEach(button => {
     });
 });
 
+// Inline error UI for dimension validation. Each input gets a sibling span
+// (.field-error) with the message; styling lives in style.css.
+function getOrCreateFieldError(input) {
+    const field = input.closest('.field');
+    if (!field) return null;
+    let err = field.querySelector('.field-error');
+    if (!err) {
+        err = document.createElement('span');
+        err.className = 'field-error';
+        field.appendChild(err);
+    }
+    return err;
+}
+function setFieldError(input, message) {
+    const stepper = input.closest('.stepper');
+    if (stepper) stepper.classList.add('has-error');
+    else input.classList.add('has-error');
+    const err = getOrCreateFieldError(input);
+    if (err) err.textContent = message;
+}
+function clearFieldError(input) {
+    const stepper = input.closest('.stepper');
+    if (stepper) stepper.classList.remove('has-error');
+    else input.classList.remove('has-error');
+    const field = input.closest('.field');
+    const err = field && field.querySelector('.field-error');
+    if (err) err.textContent = '';
+}
+
 // פונקציה לולידציה ותיקון ערך
 function validateAndCorrectValue(input, inputId) {
     const value = input.value.trim();
     if (value === '') {
-        // מסירת סימון שגיאה אם השדה ריק
-        input.style.borderColor = '';
-        input.style.backgroundColor = '';
+        clearFieldError(input);
         return;
     }
-
-    if (!validateDimension(inputId, value)) {
-
-        // סימון חזותי של שגיאה
-        input.style.borderColor = '#e74c3c';
-        input.style.backgroundColor = '#fdf2f2';
-
-        setTimeout(() => {
-            input.style.borderColor = '';
-            input.style.backgroundColor = '';
-        }, 2000);
-
-        return;
-    }
-
-    // אם הערך תקין - מסירים סימון שגיאה
-    input.style.borderColor = '';
-    input.style.backgroundColor = '';
+    if (!validateDimension(inputId, value, input)) return;
+    clearFieldError(input);
     draw();
 }
 
 // פונקציה לוולידציה של מידה בודדת
-function validateDimension(inputId, value) {
+function validateDimension(inputId, value, inputEl) {
     const limits = DIMENSION_LIMITS[inputId];
     if (!limits) return true;
-
+    const input = inputEl || document.getElementById(inputId);
     const numValue = Number(value);
-
     if (isNaN(numValue)) {
-        showCustomAlert(`${limits.name} חייב להיות מספר`, "error");
+        if (input) setFieldError(input, `${limits.name} חייב להיות מספר`);
         return false;
     }
-
     if (numValue < limits.min) {
-        showCustomAlert(`${limits.name} לא יכול להיות פחות מ-${limits.min}`, "error");
+        if (input) setFieldError(input, `מינימום ${limits.min}mm`);
         return false;
     }
-
     if (numValue > limits.max) {
-        showCustomAlert(`${limits.name} לא יכול להיות יותר מ-${limits.max}`, "error");
+        if (input) setFieldError(input, `מקסימום ${limits.max}mm`);
         return false;
     }
-
+    if (input) clearFieldError(input);
     return true;
 }
 
