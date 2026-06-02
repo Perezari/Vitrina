@@ -4,7 +4,7 @@ window.ProfileConfig = (function () {
     // מיפוי ספקים לפרופילים הזמינים
     const SUPPLIERS_PROFILES_MAP = {
         bluran: ["קואדרו",],
-        nilsen: ["דגם424",]
+        nilsen: ["דגם424","דגם_סופט_צבוע_אנטיסן38",]
     };
 
     // לוגואים של ספקים
@@ -55,7 +55,25 @@ window.ProfileConfig = (function () {
             rightNotes: "קידוחים לקבינאו 5 מ\"מ מקצה הדלת בקוטר 5 מ\"מ", //תיאור
             LeftNotes: "מידות לנושאי מדף עד מרכז קידוח בקוטר 2.5 מ\"מ", //תיאור
             CenterNotes: "קידוחים לקבינאו 5 מ\"מ מקצה הדלת בקוטר 5 מ\"מ בחלק עליון ותחתון", // תיאור
-        }
+        },
+		"דגם_סופט_צבוע_אנטיסן38": {
+        "innerFrameStroke": "#2c3e50",
+        "innerFrameStrokeWidth": 0.5,
+        "innerFrameFill": "none",
+        "outerFrameStroke": "#2c3e50",
+        "outerFrameStrokeWidth": 0.5,
+        "outerFrameFill": "none",
+        "padSides": 26,
+        "padTopBot": 26,
+        "hasGerong": true,
+        "frontDrillOffset": 8,
+        "extraDrillOffset": 0,
+        "hasDualDrill": false,
+        "defaultPrepFor": "צירים",
+        "description": "דופן דגם_סופט_צבוע_אנטיסן38",
+        "rightNotes": "הכנה למחברי קבינאו", //תיאור
+        "LeftNotes": "מידות לנושאי מדף עד מרכז קידוח בקוטר 2.5 מ\"מ", //תיאור
+		}
     };
 
     // פונקציות ציבוריות

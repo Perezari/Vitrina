@@ -970,14 +970,18 @@ function draw() {
 }
 
 //Listeners
+// Only sapakSelect rebuilds the profile options (different supplier = different
+// available profiles). The other fields just trigger a redraw — calling
+// fillProfileOptions on them would wipe and rebuild profileSelect.innerHTML
+// every time, which resets the current selection back to the first option.
 sapakSelect.addEventListener("change", fillProfileOptions);
-profileSelect.addEventListener("change", fillProfileOptions);
-sideSelect.addEventListener("change", fillProfileOptions);
-shelves.addEventListener("change", fillProfileOptions);
-CabineoLocation.addEventListener("change", fillProfileOptions);
-CabineoCount.addEventListener("change", fillProfileOptions);
-frontW.addEventListener("change", fillProfileOptions);
-cabH.addEventListener("change", fillProfileOptions);
+profileSelect.addEventListener("change", draw);
+sideSelect.addEventListener("change", draw);
+shelves.addEventListener("change", draw);
+CabineoLocation.addEventListener("change", draw);
+CabineoCount.addEventListener("change", draw);
+frontW.addEventListener("change", draw);
+cabH.addEventListener("change", draw);
 
 // Load and process Excel file
 excelFile.addEventListener("change", function (e) {
