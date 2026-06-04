@@ -48,6 +48,106 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Editable dimensions — stored per-id, written into the SVG via
+// createEditableDimension, and updated by editDimension on double-click.
+// Used here for editing shelf gap positions: type a new gap size and the
+// other gaps shift to honor it; one gap absorbs the leftover so the total
+// still adds up to cabH. shelfLeftoverIdx tracks which gap is currently
+// the auto-leftover; it swaps to the opposite end when the user edits the
+// current leftover, so every gap can be edited at least once.
+let editableDimensions = {};
+let shelfLeftoverIdx = 0;
+const editableDimStyle = document.createElement('style');
+editableDimStyle.textContent = `
+.editable-dimension:hover { fill: #007acc !important; font-weight: bold; }
+.editable-dimension { transition: fill 0.2s ease; cursor: pointer; }
+`;
+document.head.appendChild(editableDimStyle);
+
+function createEditableDimension(svg, x, y, value, id, rotation = 0, rotateX = null, rotateY = null, editable = true) {
+    editableDimensions[id] = value;
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", x);
+    text.setAttribute("y", y);
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("dominant-baseline", "middle");
+    if (rotation !== 0 && rotateX !== null && rotateY !== null) {
+        text.setAttribute("transform", `rotate(${rotation}, ${rotateX}, ${rotateY})`);
+    }
+    text.setAttribute("class", "dim-text");
+    text.setAttribute("data-dimension-id", id);
+    text.setAttribute("style", "user-select: none;");
+    text.textContent = value;
+    if (editable) {
+        text.classList.add("editable-dimension");
+        text.style.cursor = "pointer";
+        text.addEventListener("dblclick", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            editDimension(text, id);
+        });
+    }
+    svg.appendChild(text);
+    return text;
+}
+
+function editDimension(textElement, dimensionId) {
+    const currentValue = editableDimensions[dimensionId];
+    const rect = textElement.getBoundingClientRect();
+    const svgRect = document.getElementById('svg').getBoundingClientRect();
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = currentValue;
+    input.style.position = "absolute";
+    input.style.left = (rect.left - svgRect.left + 40) + "px";
+    input.style.top = (rect.top - svgRect.top + 19) + "px";
+    input.style.width = "45px";
+    input.style.height = "25px";
+    input.style.fontSize = "12px";
+    input.style.textAlign = "center";
+    input.style.border = "1px dashed #007acc";
+    input.style.borderRadius = "4px";
+    input.style.backgroundColor = "white";
+    input.style.zIndex = "1000";
+    input.style.direction = "ltr";
+    const svgContainer = document.getElementById('svg').parentElement;
+    svgContainer.appendChild(input);
+    input.focus();
+    input.select();
+
+    function removeInput() {
+        if (input && input.parentNode) input.parentNode.removeChild(input);
+    }
+    function saveValue() {
+        const newValue = input.value.trim();
+        if (newValue && !isNaN(newValue)) {
+            if (dimensionId.startsWith('shelfGap-')) {
+                const idx = parseInt(dimensionId.slice('shelfGap-'.length), 10);
+                // If the user is editing what was the auto-leftover gap, move
+                // the leftover to the opposite end so the new edit is honored.
+                if (idx === shelfLeftoverIdx) {
+                    const shelves = Math.max(1, Math.floor(+document.getElementById('shelves').value));
+                    const gaps = shelves + 1;
+                    shelfLeftoverIdx = (idx === 0) ? (gaps - 1) : 0;
+                }
+                editableDimensions[dimensionId] = parseFloat(newValue);
+                draw();
+            } else {
+                editableDimensions[dimensionId] = parseFloat(newValue);
+                textElement.textContent = newValue;
+            }
+        }
+        removeInput();
+    }
+    input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") saveValue();
+        else if (e.key === "Escape") removeInput();
+    });
+    input.addEventListener("blur", function () {
+        setTimeout(() => { if (input && input.parentNode) saveValue(); }, 0);
+    });
+}
+
 // Adds a small dot (circle) to the SVG at specified coordinates.
 function addDimDot(svg, x, y, r = 2.2) {
     const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -698,6 +798,23 @@ function draw() {
     const lTop = baseStep + T;
     const lBot = baseStep + B;
     const lStep = baseStep;
+
+    // Build the shelf-gap array honoring any user edits. Every gap is
+    // editable; the one at shelfLeftoverIdx auto-fills the remainder so the
+    // chain still sums to cabH. The index swaps when the user edits the
+    // current leftover, so any single gap can always be edited next.
+    if (shelfLeftoverIdx > gaps - 1 || shelfLeftoverIdx < 0) shelfLeftoverIdx = 0;
+    const shelfGapValues = new Array(gaps);
+    let editableShelfSum = 0;
+    for (let i = 0; i < gaps; i++) {
+        if (i === shelfLeftoverIdx) continue;
+        const def = (i === 0) ? lTop : (i === gaps - 1) ? lBot : lStep;
+        const stored = editableDimensions[`shelfGap-${i}`];
+        const v = (stored !== undefined && !isNaN(parseFloat(stored))) ? parseFloat(stored) : def;
+        shelfGapValues[i] = v;
+        editableShelfSum += v;
+    }
+    shelfGapValues[shelfLeftoverIdx] = cabH - editableShelfSum;
     const scale = 0.16;
     const padX = 500, padY = 50;
     const W = frontW * scale, H = cabH * scale;
@@ -812,10 +929,13 @@ function draw() {
     svg.insertAdjacentHTML('beforeend', `<circle cx="${xLeftDrill}" cy="${yTop50}" r="${drillR}" fill="none" stroke="#2c3e50" stroke-width="1"/>`);
     svg.insertAdjacentHTML('beforeend', `<circle cx="${xRightSideDrill}" cy="${yTop50}" r="${drillR}" fill="none" stroke="#2c3e50" stroke-width="1"/>`);
 
-    // --- קווי מדף ---
+    // --- קווי מדף --- shelves drawn at cumulative gap positions honoring edits
     const shelfYs = [];
-    let yCursor = padY + lTop * scale;
-    for (let i = 0; i < shelves; i++) { shelfYs.push(yCursor); yCursor += lStep * scale; }
+    let yCursor = padY + shelfGapValues[0] * scale;
+    for (let i = 0; i < shelves; i++) {
+        shelfYs.push(yCursor);
+        if (i + 1 < shelfGapValues.length) yCursor += shelfGapValues[i + 1] * scale;
+    }
     for (const y of shelfYs) {
         svg.insertAdjacentHTML('beforeend', `<line x1="${padX}" y1="${y}" x2="${padX + W}" y2="${y}" stroke="#2c3e50" stroke-width="1" stroke-dasharray="4 2"/>`);
     }
@@ -879,7 +999,12 @@ function draw() {
     addDimDot(svg, xRightDim, yR);
     svg.insertAdjacentHTML('beforeend', `<line class="dim" x1="${xRightDim}" y1="${yR + 2}" x2="${xRightDim}" y2="${yR + rEdge * scale}"></line>`);
     addDimDot(svg, xRightDim, yR + (rEdge * scale));
-    svg.insertAdjacentHTML('beforeend', `<text x="${xRightDim + 20}" y="${yR + (rEdge * scale) / 2 + 7}" dominant-baseline="middle" transform="rotate(-90, ${xRightDim + 10}, ${yR + (rEdge * scale) / 2})">${rEdge}</text>`);
+    // טקסט וציר באותה נקודה — אותה גישה כמו בשרשרת השמאלית, כך שהטקסט
+    // נשאר במרכז המידה גם אחרי הסיבוב.
+    {
+        const tX = xRightDim + 13, tY = yR + (rEdge * scale) / 2;
+        svg.insertAdjacentHTML('beforeend', `<text x="${tX}" y="${tY}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90, ${tX}, ${tY})">${rEdge}</text>`);
+    }
     yR += rEdge * scale;
 
     for (let i = 0; i < rMidCount; i++) {
@@ -897,14 +1022,20 @@ function draw() {
         addDimDot(svg, xRightDim, yR + (rMidStep * scale));
 
         // טקסט
-        svg.insertAdjacentHTML('beforeend', `<text x="${xRightDim + 20}" y="${yR + (rMidStep * scale) / 2 + 7}" dominant-baseline="middle" transform="rotate(-90, ${xRightDim + 10}, ${yR + (rMidStep * scale) / 2})">${rMidStep.toFixed(0)}</text>`);
+        {
+            const tX = xRightDim + 13, tY = yR + (rMidStep * scale) / 2;
+            svg.insertAdjacentHTML('beforeend', `<text x="${tX}" y="${tY}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90, ${tX}, ${tY})">${rMidStep.toFixed(0)}</text>`);
+        }
 
         yR += rMidStep * scale;
     }
 
     svg.insertAdjacentHTML('beforeend', `<line class="dim" x1="${xRightDim}" y1="${yR + 2}" x2="${xRightDim}" y2="${padY + H}"></line>`);
     addDimDot(svg, xRightDim, padY + H);
-    svg.insertAdjacentHTML('beforeend', `<text x="${xRightDim + 20}" y="${yR + (padY + H - yR) / 2 + 7}" dominant-baseline="middle" transform="rotate(-90, ${xRightDim + 10}, ${yR + (padY + H - yR) / 2})">${rEdge}</text>`);
+    {
+        const tX = xRightDim + 13, tY = yR + (padY + H - yR) / 2;
+        svg.insertAdjacentHTML('beforeend', `<text x="${tX}" y="${tY}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90, ${tX}, ${tY})">${rEdge}</text>`);
+    }
 
     // שרשרת ימין - כולל מידה אחרונה
     //let yR = padY;
@@ -924,23 +1055,23 @@ function draw() {
     //addDimDot(svg, xRightDim, padY + H);
     //svg.insertAdjacentHTML('beforeend', `<text x="${xRightDim + 20}" y="${yR + (padY + H - yR) / 2 + 7}" dominant-baseline="middle" transform="rotate(-90, ${xRightDim + 10}, ${yR + (padY + H - yR) / 2})">${rEdge}</text>`);
 
-    // שרשרת שמאל - בוטלה המידה האחרונה עקב סטיות
+    // שרשרת שמאל - מידות מדפים. כל המידות ניתנות לעריכה בדאבל-קליק.
+    // המידה בעמדה shelfLeftoverIdx היא ה-leftover האוטומטי באותו רגע (היא
+    // מתאזנת כשעורכים מידה אחרת). אחרי עריכת ה-leftover, ה-leftover עובר
+    // לקצה השני, כך שגם מידה זו ניתנת לעריכה במחזור הבא.
     let yL = padY;
-    //addDimDot(svg, xLeftDim, yL);
-    //svg.insertAdjacentHTML('beforeend', `<line class="dim" x1="${xLeftDim}" y1="${yL}" x2="${xLeftDim}" y2="${yL + lTop * scale}"></line>`);
-    addDimDot(svg, xLeftDim, yL + (lTop * scale));
-    //svg.insertAdjacentHTML('beforeend', `<text x="${xLeftDim - 10}" y="${yL + (lTop*scale)/2}" dominant-baseline="middle" transform="rotate(-90, ${xLeftDim - 10}, ${yL + (lTop*scale)/2})">${lTop.toFixed(0)}</text>`);
-    yL += lTop * scale;
-
-    for (let i = 0; i < gaps - 2; i++) {
-        svg.insertAdjacentHTML('beforeend', `<line class="dim" x1="${xLeftDim}" y1="${yL + 2}" x2="${xLeftDim}" y2="${yL + lStep * scale}"></line>`);
-        addDimDot(svg, xLeftDim, yL + (lStep * scale));
-        svg.insertAdjacentHTML('beforeend', `<text x="${xLeftDim}" y="${yL + (lStep * scale) / 2 - 7}" dominant-baseline="middle" transform="rotate(-90, ${xLeftDim - 10}, ${yL + (lStep * scale) / 2})">${lStep.toFixed(0)}</text>`);
-        yL += lStep * scale;
+    addDimDot(svg, xLeftDim, yL);
+    for (let i = 0; i < shelfGapValues.length; i++) {
+        const gapMm = shelfGapValues[i];
+        const gapPx = gapMm * scale;
+        svg.insertAdjacentHTML('beforeend', `<line class="dim" x1="${xLeftDim}" y1="${yL + 2}" x2="${xLeftDim}" y2="${yL + gapPx}"></line>`);
+        addDimDot(svg, xLeftDim, yL + gapPx);
+        // טקסט וציר באותה נקודה — כדי שאחרי סיבוב הטקסט יישאר במרכז המידה.
+        const textX = xLeftDim - 10;
+        const textY = yL + gapPx / 2;
+        createEditableDimension(svg, textX, textY, Math.round(gapMm), `shelfGap-${i}`, -90, textX, textY);
+        yL += gapPx;
     }
-    svg.insertAdjacentHTML('beforeend', `<line class="dim" x1="${xLeftDim}" y1="${yL + 2}" x2="${xLeftDim}" y2="${padY + H}"></line>`);
-    addDimDot(svg, xLeftDim, padY + H);
-    svg.insertAdjacentHTML('beforeend', `<text x="${xLeftDim}" y="${yL + (padY + H - yL) / 2 - 7}" dominant-baseline="middle" transform="rotate(-90, ${xLeftDim - 10}, ${yL + (padY + H - yL) / 2})">${lBot.toFixed(0)}</text>`);
 
     const trueLeft = padX - 60;     // הקו הקיצוני בשמאל
     const trueRight = padX + W + 30; // הקו הקיצוני בימין
@@ -974,14 +1105,31 @@ function draw() {
 // available profiles). The other fields just trigger a redraw — calling
 // fillProfileOptions on them would wipe and rebuild profileSelect.innerHTML
 // every time, which resets the current selection back to the first option.
+function clearShelfGapOverrides() {
+    Object.keys(editableDimensions).forEach((k) => {
+        if (k.startsWith('shelfGap-')) delete editableDimensions[k];
+    });
+    shelfLeftoverIdx = 0;
+}
+
 sapakSelect.addEventListener("change", fillProfileOptions);
 profileSelect.addEventListener("change", draw);
 sideSelect.addEventListener("change", draw);
-shelves.addEventListener("change", draw);
+shelves.addEventListener("change", function () {
+    // Different shelf count → previous per-gap overrides don't fit anymore;
+    // drop them so defaults recompute.
+    clearShelfGapOverrides();
+    draw();
+});
 CabineoLocation.addEventListener("change", draw);
 CabineoCount.addEventListener("change", draw);
 frontW.addEventListener("change", draw);
-cabH.addEventListener("change", draw);
+cabH.addEventListener("change", function () {
+    // Available height changed → stored gaps may overflow / underflow;
+    // drop them so auto-distribution kicks back in.
+    clearShelfGapOverrides();
+    draw();
+});
 
 // Load and process Excel file
 excelFile.addEventListener("change", function (e) {
