@@ -93,33 +93,68 @@ function createEditableDimension(svg, x, y, value, id, rotation = 0, rotateX = n
 
 function editDimension(textElement, dimensionId) {
     const currentValue = editableDimensions[dimensionId];
-    const rect = textElement.getBoundingClientRect();
-    const svgRect = document.getElementById('svg').getBoundingClientRect();
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = currentValue;
-    input.style.position = "absolute";
-    input.style.left = (rect.left - svgRect.left + 40) + "px";
-    input.style.top = (rect.top - svgRect.top + 19) + "px";
-    input.style.width = "45px";
-    input.style.height = "25px";
-    input.style.fontSize = "12px";
-    input.style.textAlign = "center";
-    input.style.border = "1px dashed #007acc";
-    input.style.borderRadius = "4px";
-    input.style.backgroundColor = "white";
-    input.style.zIndex = "1000";
-    input.style.direction = "ltr";
-    const svgContainer = document.getElementById('svg').parentElement;
-    svgContainer.appendChild(input);
-    input.focus();
-    input.select();
+    const svg = document.getElementById('svg');
+    const tx = parseFloat(textElement.getAttribute('x'));
+    const ty = parseFloat(textElement.getAttribute('y'));
+    const transform = textElement.getAttribute('transform') || '';
 
-    function removeInput() {
-        if (input && input.parentNode) input.parentNode.removeChild(input);
+    // Hide the original SVG text while editing — the foreignObject below
+    // takes its place at the exact same coordinates and rotation, so the
+    // user sees the SAME label, just editable. No separate chrome.
+    const prevVisibility = textElement.style.visibility;
+    textElement.style.visibility = 'hidden';
+
+    const W = 40, H = 16;
+    const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+    fo.setAttribute('x', tx - W / 2);
+    fo.setAttribute('y', ty - H / 2);
+    fo.setAttribute('width', W);
+    fo.setAttribute('height', H);
+    if (transform) fo.setAttribute('transform', transform);
+    fo.setAttribute('style', 'overflow: visible;');
+
+    const editor = document.createElement('div');
+    editor.contentEditable = 'true';
+    editor.spellcheck = false;
+    editor.textContent = currentValue;
+    editor.style.cssText = `
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+        font-size: 13px;
+        font-weight: 600;
+        color: #007acc;
+        outline: none;
+        line-height: ${H}px;
+        cursor: text;
+        background: transparent;
+        direction: ltr;
+        padding: 0;
+        margin: 0;
+        caret-color: #007acc;
+    `;
+
+    fo.appendChild(editor);
+    textElement.parentNode.insertBefore(fo, textElement.nextSibling);
+
+    editor.focus();
+    const range = document.createRange();
+    range.selectNodeContents(editor);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    let done = false;
+    function cleanup() {
+        if (done) return;
+        done = true;
+        textElement.style.visibility = prevVisibility || '';
+        if (fo.parentNode) fo.parentNode.removeChild(fo);
     }
     function saveValue() {
-        const newValue = input.value.trim();
+        if (done) return;
+        const newValue = editor.textContent.trim();
         if (newValue && !isNaN(newValue)) {
             if (dimensionId.startsWith('shelfGap-')) {
                 const idx = parseInt(dimensionId.slice('shelfGap-'.length), 10);
@@ -131,21 +166,22 @@ function editDimension(textElement, dimensionId) {
                     shelfLeftoverIdx = (idx === 0) ? (gaps - 1) : 0;
                 }
                 editableDimensions[dimensionId] = parseFloat(newValue);
+                cleanup();
                 draw();
-            } else {
-                editableDimensions[dimensionId] = parseFloat(newValue);
-                textElement.textContent = newValue;
+                return;
             }
+            editableDimensions[dimensionId] = parseFloat(newValue);
+            textElement.textContent = newValue;
         }
-        removeInput();
+        cleanup();
     }
-    input.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") saveValue();
-        else if (e.key === "Escape") removeInput();
+    editor.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); saveValue(); }
+        else if (e.key === 'Escape') { e.preventDefault(); cleanup(); }
     });
-    input.addEventListener("blur", function () {
-        setTimeout(() => { if (input && input.parentNode) saveValue(); }, 0);
-    });
+    editor.addEventListener('blur', () => setTimeout(() => {
+        if (!done) saveValue();
+    }, 0));
 }
 
 // Adds a small dot (circle) to the SVG at specified coordinates.
